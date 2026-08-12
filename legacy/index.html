@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dr. Chaitanya Krishna | Online Consultations</title>
+    <meta
+      name="description"
+      content="Portfolio and online consultation booking for Dr. Chaitanya Krishna. Book a secure video consult after UPI payment."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Sora:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="logo" href="#top">Dr. Chaitanya Krishna</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#about">About</a>
+        <a href="#practice">Practice</a>
+        <a href="#for-colleagues">For Colleagues</a>
+        <a class="nav-cta" href="#book">Book Consult</a>
+      </nav>
+      <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-media" aria-hidden="true">
+          <img
+            src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=2200&q=80"
+            alt=""
+          />
+          <div class="hero-veil"></div>
+        </div>
+        <div class="hero-content">
+          <p class="brand-mark">Dr. Chaitanya Krishna</p>
+          <h1>Clear answers. Calm care. Consultations that fit your day.</h1>
+          <p class="hero-lede">
+            Internal medicine &amp; preventive care — for patients seeking a second opinion,
+            follow-up, or a focused online consult from home.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#book">Book online consult</a>
+            <a class="btn btn-ghost" href="#about">View credentials</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section about" id="about">
+        <div class="section-inner split">
+          <div>
+            <p class="eyebrow">About the doctor</p>
+            <h2>Medicine grounded in listening, clarity, and practical next steps.</h2>
+            <p>
+              I am Dr. Chaitanya Krishna, a physician focused on adult medicine, lifestyle-related
+              conditions, and thoughtful follow-up care. This page is for patients who want a
+              straightforward consult, and for colleagues looking to refer or collaborate.
+            </p>
+            <ul class="credential-list">
+              <li>
+                <strong>MBBS, MD (Internal Medicine)</strong>
+                <span>Osmania Medical College — dummy credential for demo</span>
+              </li>
+              <li>
+                <strong>10+ years clinical practice</strong>
+                <span>Outpatient, telemedicine &amp; inpatient consults</span>
+              </li>
+              <li>
+                <strong>Languages</strong>
+                <span>English, Telugu, Hindi</span>
+              </li>
+            </ul>
+          </div>
+          <aside class="about-panel">
+            <p class="panel-label">At a glance</p>
+            <dl>
+              <div>
+                <dt>Consult fee</dt>
+                <dd>₹800 <small>(demo)</small></dd>
+              </div>
+              <div>
+                <dt>Duration</dt>
+                <dd>20–25 minutes</dd>
+              </div>
+              <div>
+                <dt>Mode</dt>
+                <dd>Video / phone</dd>
+              </div>
+              <div>
+                <dt>Clinic</dt>
+                <dd>Hyderabad (demo)</dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section practice" id="practice">
+        <div class="section-inner">
+          <p class="eyebrow">Practice focus</p>
+          <h2>Where I can help</h2>
+          <p class="section-lede">
+            Online consults work best for follow-ups, medication reviews, and non-emergency
+            concerns. For chest pain, breathlessness, or severe symptoms, please seek emergency care.
+          </p>
+          <ul class="focus-grid">
+            <li>
+              <h3>General internal medicine</h3>
+              <p>Fever, fatigue, infections, and everyday adult health concerns.</p>
+            </li>
+            <li>
+              <h3>Metabolic &amp; lifestyle</h3>
+              <p>Diabetes, hypertension, thyroid, and weight-related guidance.</p>
+            </li>
+            <li>
+              <h3>Preventive care</h3>
+              <p>Lab review, risk screening, and practical prevention plans.</p>
+            </li>
+            <li>
+              <h3>Second opinions</h3>
+              <p>Help interpreting reports and deciding next clinical steps.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section colleagues" id="for-colleagues">
+        <div class="section-inner split">
+          <div>
+            <p class="eyebrow">For colleagues</p>
+            <h2>Happy to collaborate on referrals and shared care.</h2>
+            <p>
+              If you are a clinician referring a patient, share this page and ask them to book an
+              online slot. Dummy referral notes can be attached later when calendar and API
+              integrations are connected.
+            </p>
+          </div>
+          <div class="colleague-note">
+            <p>
+              <strong>Referral email (demo):</strong>
+              referrals.drchaitanya@example.com
+            </p>
+            <p>
+              <strong>Preferred details:</strong>
+              brief history, current meds, recent labs, and the question you want addressed.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section book" id="book">
+        <div class="section-inner">
+          <p class="eyebrow">Online consultation</p>
+          <h2>Book a slot — pay first, then confirm</h2>
+          <p class="section-lede">
+            Choose a date and time, pay via PhonePe / UPI, then confirm your booking. Calendar and
+            payment APIs will replace this demo flow later.
+          </p>
+
+          <div class="booking-shell" id="booking-app">
+            <ol class="steps" aria-label="Booking steps">
+              <li class="is-active" data-step-indicator="1">Details</li>
+              <li data-step-indicator="2">Slot</li>
+              <li data-step-indicator="3">Pay</li>
+              <li data-step-indicator="4">Done</li>
+            </ol>
+
+            <!-- Step 1: Patient details -->
+            <form class="panel step is-active" id="step-details" data-step="1">
+              <h3>Patient details</h3>
+              <div class="form-grid">
+                <label>
+                  Full name
+                  <input type="text" name="name" required placeholder="Patient full name" />
+                </label>
+                <label>
+                  Mobile number
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    pattern="[0-9]{10}"
+                    placeholder="10-digit mobile"
+                  />
+                </label>
+                <label>
+                  Age
+                  <input type="number" name="age" min="1" max="120" required placeholder="Age" />
+                </label>
+                <label>
+                  Consult type
+                  <select name="consultType" required>
+                    <option value="video">Video consult</option>
+                    <option value="phone">Phone consult</option>
+                    <option value="followup">Follow-up</option>
+                  </select>
+                </label>
+                <label class="full">
+                  Reason for consult
+                  <textarea
+                    name="reason"
+                    rows="3"
+                    required
+                    placeholder="Briefly describe symptoms or what you need help with"
+                  ></textarea>
+                </label>
+              </div>
+              <div class="panel-actions">
+                <button class="btn btn-primary" type="submit">Continue to slots</button>
+              </div>
+            </form>
+
+            <!-- Step 2: Slot selection -->
+            <div class="panel step" id="step-slot" data-step="2" hidden>
+              <h3>Choose date &amp; time</h3>
+              <div class="slot-layout">
+                <div class="date-list" id="date-list" role="listbox" aria-label="Available dates"></div>
+                <div>
+                  <p class="slot-heading" id="slot-heading">Select a date</p>
+                  <div class="slot-grid" id="slot-grid"></div>
+                </div>
+              </div>
+              <div class="panel-actions">
+                <button class="btn btn-ghost" type="button" data-back="1">Back</button>
+                <button class="btn btn-primary" type="button" id="continue-pay" disabled>
+                  Continue to payment
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 3: UPI Payment -->
+            <div class="panel step" id="step-pay" data-step="3" hidden>
+              <h3>Pay with PhonePe / UPI</h3>
+              <p class="pay-intro">
+                Scan the QR with PhonePe, GPay, or any UPI app. Slots are confirmed only after you
+                mark payment as complete.
+              </p>
+              <div class="pay-layout">
+                <div class="qr-card">
+                  <div class="phonepe-badge">PhonePe</div>
+                  <img
+                    id="upi-qr"
+                    alt="Dummy UPI QR code for payment"
+                    width="220"
+                    height="220"
+                  />
+                  <p class="upi-id">
+                    UPI ID
+                    <button type="button" id="copy-upi" class="upi-copy" title="Copy UPI ID">
+                      drchaitanya@ybl
+                    </button>
+                  </p>
+                  <p class="amount">Amount due: <strong>₹800</strong></p>
+                </div>
+                <div class="pay-summary">
+                  <h4>Booking summary</h4>
+                  <dl id="pay-summary"></dl>
+                  <label class="check-pay">
+                    <input type="checkbox" id="paid-confirm" />
+                    I have completed the UPI payment of ₹800
+                  </label>
+                  <p class="demo-note">
+                    Demo mode: no real payment is processed. Use the dummy UPI ID above.
+                  </p>
+                  <div class="panel-actions">
+                    <button class="btn btn-ghost" type="button" data-back="2">Back</button>
+                    <button class="btn btn-primary" type="button" id="confirm-booking" disabled>
+                      Confirm booking
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4: Confirmation -->
+            <div class="panel step" id="step-done" data-step="4" hidden>
+              <div class="success">
+                <p class="success-kicker">Booking confirmed</p>
+                <h3 id="confirmation-title">Your consult is reserved</h3>
+                <p id="confirmation-body"></p>
+                <div class="confirmation-card" id="confirmation-card"></div>
+                <div class="panel-actions">
+                  <button class="btn btn-ghost" type="button" id="new-booking">
+                    Book another slot
+                  </button>
+                  <a class="btn btn-primary" href="#about">Back to profile</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section contact" id="contact">
+        <div class="section-inner split">
+          <div>
+            <p class="eyebrow">Clinic &amp; contact</p>
+            <h2>Reach the practice</h2>
+            <p>
+              For non-urgent questions outside booked slots, use the demo contact details below.
+              Emergency symptoms need ER / ambulance care — not an online consult.
+            </p>
+          </div>
+          <address class="contact-card">
+            <p><strong>Phone (demo):</strong> +91 98765 43210</p>
+            <p><strong>Email (demo):</strong> care.drchaitanya@example.com</p>
+            <p><strong>Clinic (demo):</strong> Banjara Hills, Hyderabad</p>
+            <p><strong>Hours:</strong> Mon–Sat, 10:00 AM – 7:00 PM IST</p>
+          </address>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© <span id="year"></span> Dr. Chaitanya Krishna. Demo portfolio for patients &amp; colleagues.</p>
+      <p class="footer-note">Payments and calendar sync are simulated until live APIs are connected.</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <script src="app.js"></script>
+  </body>
+</html>

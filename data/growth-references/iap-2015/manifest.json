@@ -1,0 +1,12 @@
+{
+  "source": "IAP",
+  "version": "IAP-2015",
+  "name": "IAP Growth Charts 2015",
+  "ageMinMonths": 60,
+  "ageMaxMonths": 216,
+  "files": {
+    "WEIGHT_FOR_AGE": "weight-for-age.json",
+    "HEIGHT_FOR_AGE": "height-for-age.json",
+    "BMI_FOR_AGE": "bmi-for-age.json"
+  }
+}

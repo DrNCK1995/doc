@@ -1,0 +1,223 @@
+// Pediatric Growth Monitoring — Prisma schema
+// Primary keys are UUIDs (never exposed). Human-readable patientId is separate & immutable.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Sex {
+  MALE
+  FEMALE
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+enum ReferenceSource {
+  WHO
+  IAP
+}
+
+enum GrowthIndicator {
+  WEIGHT_FOR_AGE
+  HEIGHT_FOR_AGE
+  BMI_FOR_AGE
+  WEIGHT_FOR_HEIGHT
+  HEAD_CIRCUMFERENCE_FOR_AGE
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  name         String?
+  passwordHash String
+  role         Role      @default(ADMIN)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  auditLogs    AuditLog[]
+}
+
+model Patient {
+  id              String   @id @default(uuid()) // internal PK — never expose
+  patientId       String   @unique // human-readable: ARJ202608121430-001
+  name            String
+  dateOfBirth     DateTime @db.Date
+  sex             Sex
+  birthWeightKg   Float?
+  parentName      String
+  mobileNumber    String
+  email           String?
+  address         String?
+  photoUrl        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  visits          Visit[]
+  measurements    GrowthMeasurement[]
+  vaccinations    VaccinationRecord[]
+  milestones      DevelopmentalMilestone[]
+
+  @@index([name])
+  @@index([mobileNumber])
+  @@index([dateOfBirth])
+  @@index([patientId])
+}
+
+model Visit {
+  id                  String   @id @default(uuid())
+  patientId           String
+  visitDate           DateTime @db.Date
+  ageYears            Int
+  ageMonths           Int
+  ageDays             Int
+  ageTotalMonths      Float // precise age in months for charting
+  weightKg            Float
+  heightCm            Float
+  headCircumferenceCm Float?
+  bmi                 Float
+  notes               String?
+  doctorAdvice        String?
+  vaccinationStatus   String?
+  nextVisitDue        DateTime? @db.Date
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  patient             Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  measurements        GrowthMeasurement[]
+
+  @@index([patientId, visitDate])
+  @@index([nextVisitDue])
+}
+
+/// Snapshot of computed growth metrics for a visit (longitudinal; never overwritten)
+model GrowthMeasurement {
+  id                    String   @id @default(uuid())
+  patientId             String
+  visitId               String
+  referenceSource       ReferenceSource
+  referenceVersion      String
+  weightForAgeZ         Float?
+  weightForAgePercentile Float?
+  heightForAgeZ         Float?
+  heightForAgePercentile Float?
+  bmiForAgeZ            Float?
+  bmiForAgePercentile   Float?
+  weightForHeightZ      Float?
+  weightForHeightPercentile Float?
+  hcForAgeZ             Float?
+  hcForAgePercentile    Float?
+  nutritionalStatus     String
+  clinicalFlags         String[] // e.g. ["STUNTING", "UNDERWEIGHT"]
+  growthVelocityKgPerMonth Float?
+  expectedWeightKg      Float?
+  expectedHeightCm      Float?
+  createdAt             DateTime @default(now())
+
+  patient               Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  visit                 Visit    @relation(fields: [visitId], references: [id], onDelete: Cascade)
+
+  @@unique([visitId])
+  @@index([patientId])
+}
+
+/// Versioned WHO / IAP LMS reference metadata
+model GrowthReferenceVersion {
+  id          String          @id @default(uuid())
+  source      ReferenceSource
+  version     String          // e.g. "WHO-2006", "IAP-2015"
+  name        String
+  description String?
+  ageMinMonths Float
+  ageMaxMonths Float
+  isActive    Boolean         @default(true)
+  publishedAt DateTime?
+  importedAt  DateTime        @default(now())
+  lmsPoints   LmsDataPoint[]
+
+  @@unique([source, version])
+  @@index([source, isActive])
+}
+
+/// LMS (L, M, S) parameters keyed by age (or height for WFH) and sex
+model LmsDataPoint {
+  id            String          @id @default(uuid())
+  versionId     String
+  indicator     GrowthIndicator
+  sex           Sex
+  /// Age in months (or height in cm when indicator = WEIGHT_FOR_HEIGHT)
+  xValue        Float
+  L             Float
+  M             Float
+  S             Float
+  /// Optional published percentiles for chart curves (P3, P15, P50, P85, P97)
+  p3            Float?
+  p15           Float?
+  p50           Float?
+  p85           Float?
+  p97           Float?
+
+  version       GrowthReferenceVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  @@unique([versionId, indicator, sex, xValue])
+  @@index([versionId, indicator, sex])
+}
+
+model VaccinationRecord {
+  id           String   @id @default(uuid())
+  patientId    String
+  vaccineName  String
+  doseLabel    String?
+  givenDate    DateTime? @db.Date
+  dueDate      DateTime? @db.Date
+  status       String   @default("DUE") // DUE | GIVEN | MISSED | SKIPPED
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  @@index([patientId])
+}
+
+model DevelopmentalMilestone {
+  id             String   @id @default(uuid())
+  patientId      String
+  domain         String   // MOTOR | LANGUAGE | SOCIAL | COGNITIVE
+  milestoneName  String
+  expectedAgeMonths Int
+  achievedAt     DateTime? @db.Date
+  status         String   @default("PENDING") // PENDING | ACHIEVED | DELAYED
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  patient        Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  @@index([patientId])
+}
+
+model PatientIdSequence {
+  id        String   @id @default("global")
+  /// Last used minute bucket key: YYYYMMDDHHmm
+  bucketKey String
+  sequence  Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}

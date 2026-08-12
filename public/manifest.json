@@ -1,0 +1,17 @@
+{
+  "name": "Dr. Chaitanya Krishna Pediatric Growth Monitor",
+  "short_name": "Growth Monitor",
+  "description": "Pediatric growth monitoring with WHO/IAP charts for Dr. Chaitanya Krishna.",
+  "start_url": "/growth",
+  "display": "standalone",
+  "background_color": "#F7FAFC",
+  "theme_color": "#0B4F6C",
+  "icons": [
+    {
+      "src": "/icon",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

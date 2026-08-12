@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-family), ui-serif, Georgia, serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --background: #f7fafc;
+  --foreground: #0b2e3d;
+  --card: #ffffff;
+  --card-foreground: #0b2e3d;
+  --popover: #ffffff;
+  --popover-foreground: #0b2e3d;
+  --primary: #0b4f6c;
+  --primary-foreground: #f4fafc;
+  --secondary: #e8f1f5;
+  --secondary-foreground: #0b4f6c;
+  --muted: #eef3f6;
+  --muted-foreground: #4a6673;
+  --accent: #1b7a9e;
+  --accent-foreground: #f4fafc;
+  --destructive: #b42318;
+  --border: #d5e2e9;
+  --input: #d5e2e9;
+  --ring: #1b7a9e;
+  --radius: 0.75rem;
+
+  --status-green: #1a7a4c;
+  --status-green-bg: #e6f6ee;
+  --status-yellow: #9a6b00;
+  --status-yellow-bg: #fff6db;
+  --status-orange: #c05600;
+  --status-orange-bg: #ffedd5;
+  --status-red: #b42318;
+  --status-red-bg: #fee4e2;
+
+  --chart-p3: #94a3b8;
+  --chart-p15: #64748b;
+  --chart-p50: #0b4f6c;
+  --chart-p85: #64748b;
+  --chart-p97: #94a3b8;
+  --chart-patient: #c2410c;
+
+  --surface-glow: rgba(27, 122, 158, 0.12);
+  --surface-mist: rgba(11, 79, 108, 0.06);
+}
+
+.dark {
+  --background: #071820;
+  --foreground: #e8f1f5;
+  --card: #0d2430;
+  --card-foreground: #e8f1f5;
+  --popover: #0d2430;
+  --popover-foreground: #e8f1f5;
+  --primary: #5eb8d6;
+  --primary-foreground: #06202b;
+  --secondary: #143342;
+  --secondary-foreground: #d5eaf2;
+  --muted: #123040;
+  --muted-foreground: #9bb4c0;
+  --accent: #2f9fc4;
+  --accent-foreground: #06202b;
+  --destructive: #f97066;
+  --border: #1e3d4d;
+  --input: #1e3d4d;
+  --ring: #5eb8d6;
+
+  --status-green: #3dd68c;
+  --status-green-bg: #0f2f22;
+  --status-yellow: #f5c84c;
+  --status-yellow-bg: #33280a;
+  --status-orange: #fb923c;
+  --status-orange-bg: #3a1f0a;
+  --status-red: #f97066;
+  --status-red-bg: #3b1210;
+
+  --chart-p3: #64748b;
+  --chart-p15: #94a3b8;
+  --chart-p50: #5eb8d6;
+  --chart-p85: #94a3b8;
+  --chart-p97: #64748b;
+  --chart-patient: #fb923c;
+
+  --surface-glow: rgba(94, 184, 214, 0.14);
+  --surface-mist: rgba(47, 159, 196, 0.08);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    background-image:
+      radial-gradient(1100px 520px at 8% -12%, var(--surface-glow), transparent 55%),
+      radial-gradient(900px 480px at 100% 0%, var(--surface-mist), transparent 50%),
+      linear-gradient(180deg, color-mix(in oklab, var(--background) 92%, var(--primary)) 0%, var(--background) 42%, var(--background) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display-family), ui-serif, Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+}
+
+@layer utilities {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-pad {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+}
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-break {
+    break-before: page;
+  }
+
+  .recharts-wrapper,
+  .chart-print-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .chart-print-block {
+    margin-bottom: 1.25rem;
+  }
+}
+
+.print-only {
+  display: none;
+}
