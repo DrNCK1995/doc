@@ -3,7 +3,10 @@ import {
   Activity,
   ArrowRight,
   Baby,
+  Bell,
   CalendarDays,
+  Download,
+  ExternalLink,
   LineChart,
   Stethoscope,
 } from "lucide-react";
@@ -16,6 +19,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+const VACCINATION_FORM_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdM6FTAOOg1nbwXRQ3cb1dgHMKrBM2kIo_OwyMS9aE5t7sl5g/viewform?usp=header";
 
 export default function HomePage() {
   return (
@@ -55,7 +61,7 @@ export default function HomePage() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link href="#book">Book consult</Link>
+                <Link href="#vaccination">Vaccine reminders</Link>
               </Button>
             </div>
           </div>
@@ -175,31 +181,127 @@ export default function HomePage() {
                   icon: Baby,
                   title: "Well-child care",
                   body: "Feeding, sleep, common illnesses, and parent counseling.",
+                  href: undefined as string | undefined,
                 },
                 {
                   icon: Activity,
                   title: "Growth monitoring",
                   body: "WHO/IAP charts, z-scores, velocity, and follow-up alerts.",
+                  href: "/growth",
                 },
                 {
                   icon: Stethoscope,
                   title: "Nutrition support",
                   body: "Underweight, stunting, and catch-up growth plans.",
+                  href: undefined,
                 },
                 {
                   icon: CalendarDays,
                   title: "Vaccination review",
-                  body: "Age-appropriate status notes with visit documentation.",
+                  body: "Schedule PDF, email reminders, and age-appropriate guidance.",
+                  href: "#vaccination",
                 },
-              ].map((item) => (
-                <Card key={item.title} className="bg-card/70">
+              ].map((item) => {
+                const content = (
                   <CardHeader>
                     <item.icon className="h-5 w-5 text-accent" />
                     <CardTitle className="text-xl">{item.title}</CardTitle>
                     <CardDescription>{item.body}</CardDescription>
                   </CardHeader>
-                </Card>
-              ))}
+                );
+                return item.href ? (
+                  <Link key={item.title} href={item.href} className="block">
+                    <Card className="h-full bg-card/70 transition-colors hover:border-accent/50">
+                      {content}
+                    </Card>
+                  </Link>
+                ) : (
+                  <Card key={item.title} className="bg-card/70">
+                    {content}
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="section-pad border-t border-border/70" id="vaccination">
+          <div className="container-page">
+            <p className="text-xs font-semibold uppercase tracking-wider text-accent">
+              Vaccine schedule & reminders
+            </p>
+            <h2 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">
+              Get your child&apos;s vaccination schedule
+            </h2>
+            <p className="mt-3 max-w-2xl text-muted-foreground">
+              Fill a short form with your child&apos;s details. You&apos;ll receive a
+              personalised vaccination PDF by email, plus automatic reminders
+              three days before each due date and on the day itself.
+            </p>
+
+            <div className="mt-10 grid gap-6 lg:grid-cols-2">
+              <div className="rounded-2xl border border-border bg-gradient-to-br from-secondary/80 to-card p-6 sm:p-8">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+                  <Download className="h-6 w-6" aria-hidden />
+                </div>
+                <h3 className="mt-5 font-display text-xl font-semibold">
+                  Download vaccination PDF
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  After you submit the form, a schedule PDF is generated and
+                  emailed to you automatically — keep it for clinic visits and
+                  records.
+                </p>
+                <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
+                  <li className="flex gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                    Child name, date of birth, and gender
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                    Parent email for PDF delivery
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-gradient-to-br from-secondary/80 to-card p-6 sm:p-8">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+                  <Bell className="h-6 w-6" aria-hidden />
+                </div>
+                <h3 className="mt-5 font-display text-xl font-semibold">
+                  Automated vaccine reminders
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Once enrolled, you get email reminders so due vaccines are not
+                  missed — plan your clinic visit with time to spare.
+                </p>
+                <ul className="mt-5 space-y-2 text-sm text-muted-foreground">
+                  <li className="flex gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                    Reminder 3 days before the due date
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                    Same-day alert when a vaccine is due
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <Button asChild size="lg">
+                <a
+                  href={VACCINATION_FORM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Get vaccination PDF & reminders
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Opens Google Form · PDF arrives by email after submit
+              </p>
             </div>
           </div>
         </section>
