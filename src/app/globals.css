@@ -59,12 +59,15 @@
   --status-red: #b42318;
   --status-red-bg: #fee4e2;
 
-  --chart-p3: #94a3b8;
-  --chart-p15: #64748b;
+  --chart-p3: #b42318;
+  --chart-p15: #c05600;
   --chart-p50: #0b4f6c;
-  --chart-p85: #64748b;
-  --chart-p97: #94a3b8;
-  --chart-patient: #c2410c;
+  --chart-p85: #c05600;
+  --chart-p97: #b42318;
+  --chart-patient: #1a7a4c;
+  --chart-zone-green: rgba(26, 122, 76, 0.18);
+  --chart-zone-orange: rgba(192, 86, 0, 0.16);
+  --chart-zone-red: rgba(180, 35, 24, 0.12);
 
   --surface-glow: rgba(27, 122, 158, 0.12);
   --surface-mist: rgba(11, 79, 108, 0.06);
@@ -99,12 +102,15 @@
   --status-red: #f97066;
   --status-red-bg: #3b1210;
 
-  --chart-p3: #64748b;
-  --chart-p15: #94a3b8;
+  --chart-p3: #f97066;
+  --chart-p15: #fb923c;
   --chart-p50: #5eb8d6;
-  --chart-p85: #94a3b8;
-  --chart-p97: #64748b;
-  --chart-patient: #fb923c;
+  --chart-p85: #fb923c;
+  --chart-p97: #f97066;
+  --chart-patient: #3dd68c;
+  --chart-zone-green: rgba(61, 214, 140, 0.16);
+  --chart-zone-orange: rgba(251, 146, 60, 0.14);
+  --chart-zone-red: rgba(249, 112, 102, 0.12);
 
   --surface-glow: rgba(94, 184, 214, 0.14);
   --surface-mist: rgba(47, 159, 196, 0.08);
@@ -151,6 +157,58 @@
   .section-pad {
     @apply py-16 sm:py-20 lg:py-24;
   }
+
+  .font-telugu {
+    font-family: var(--font-telugu), var(--font-body), ui-sans-serif, sans-serif;
+  }
+
+  .font-telugu h1,
+  .font-telugu h2,
+  .font-telugu h3,
+  .font-telugu .font-display {
+    font-family: var(--font-telugu), var(--font-display-family), ui-sans-serif, sans-serif;
+  }
+}
+
+@keyframes learn-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes learn-spine {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.learn-rise {
+  animation: learn-rise 0.45s ease both;
+}
+
+.learn-step {
+  animation: learn-rise 0.5s ease both;
+}
+
+.learn-spine {
+  transform-origin: left;
+  animation: learn-spine 0.7s ease 0.15s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learn-rise,
+  .learn-step,
+  .learn-spine {
+    animation: none;
+  }
 }
 
 @media print {
@@ -179,6 +237,12 @@
 
   .chart-print-block {
     margin-bottom: 1.25rem;
+  }
+
+  #child-health-dashboard {
+    border: none;
+    padding: 0;
+    box-shadow: none;
   }
 }
 

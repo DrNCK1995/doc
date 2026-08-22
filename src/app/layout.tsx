@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Sora } from "next/font/google";
+import { Cormorant_Garamond, Noto_Sans_Telugu, Sora } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
@@ -19,13 +19,20 @@ const cormorant = Cormorant_Garamond({
   style: ["normal", "italic"],
 });
 
+const notoTelugu = Noto_Sans_Telugu({
+  subsets: ["telugu"],
+  variable: "--font-telugu",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
   title: {
     default: "Dr. Chaitanya Krishna | Pediatric Growth Monitor",
     template: "%s | Dr. Chaitanya Krishna",
   },
   description:
-    "Pediatric growth monitoring with WHO/IAP charts, follow-ups, and clinical reports for Dr. Chaitanya Krishna’s practice.",
+    "Consultant paediatrician and intensivist at Imperial Hospitals, Bhimavaram. Paediatric critical care, NICU, preventive paediatrics, vaccination, and growth monitoring.",
   applicationName: "Pediatric Growth Monitor",
   manifest: "/manifest.json",
   keywords: [
@@ -53,7 +60,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${sora.variable} ${cormorant.variable}`}>
+      <body className={`${sora.variable} ${cormorant.variable} ${notoTelugu.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

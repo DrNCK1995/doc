@@ -1,5 +1,10 @@
 import type { GrowthIndicator, ReferenceSource, Sex } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
+import {
+  severityFromStatus,
+  severityFromZ,
+  toTrafficLight,
+} from "@/lib/growth/severity-colors";
 import { selectReference } from "@/lib/growth/reference-selector";
 import type {
   ChartPayload,
@@ -127,9 +132,10 @@ export async function buildChartPayload(
     throw Object.assign(new Error("Patient not found"), { status: 404 });
   }
 
-  const sex = patient.sex;
+  const record = patient;
+  const sex = record.sex;
   const latestAge =
-    patient.visits[patient.visits.length - 1]?.ageTotalMonths ?? 0;
+    record.visits[record.visits.length - 1]?.ageTotalMonths ?? 0;
   const { source, version } = resolveReference(latestAge);
 
   async function seriesFor(
@@ -155,58 +161,84 @@ export async function buildChartPayload(
     };
   }
 
-  const wfaPoints: ChartPoint[] = patient.visits.map((v) => ({
-    x: v.ageTotalMonths,
-    y: v.weightKg,
-    visitId: v.id,
-    visitDate: v.visitDate.toISOString().slice(0, 10),
-  }));
+  type VisitRow = (typeof record.visits)[number];
 
-  const hfaPoints: ChartPoint[] = patient.visits.map((v) => ({
-    x: v.ageTotalMonths,
-    y: v.heightCm,
-    visitId: v.id,
-    visitDate: v.visitDate.toISOString().slice(0, 10),
-  }));
+  function pointWithZ(
+    x: number,
+    y: number | null,
+    visit: VisitRow,
+    z: number | null | undefined,
+  ): ChartPoint {
+    const m = visit.measurements[0];
+    const fromZ = z != null ? toTrafficLight(severityFromZ(z)) : null;
+    const fromStatus = severityFromStatus(
+      m?.nutritionalStatus,
+      m?.clinicalFlags,
+    );
+    return {
+      x,
+      y,
+      visitId: visit.id,
+      visitDate: visit.visitDate.toISOString().slice(0, 10),
+      zScore: z ?? null,
+      severityColor: fromZ ?? fromStatus,
+    };
+  }
 
-  const bmiPoints: ChartPoint[] = patient.visits.map((v) => ({
-    x: v.ageTotalMonths,
-    y: v.bmi,
-    visitId: v.id,
-    visitDate: v.visitDate.toISOString().slice(0, 10),
-  }));
+  const wfaPoints: ChartPoint[] = record.visits.map((v) =>
+    pointWithZ(v.ageTotalMonths, v.weightKg, v, v.measurements[0]?.weightForAgeZ),
+  );
 
-  const wfhPoints: ChartPoint[] = patient.visits.map((v) => ({
-    x: v.heightCm,
-    y: v.weightKg,
-    visitId: v.id,
-    visitDate: v.visitDate.toISOString().slice(0, 10),
-  }));
+  const hfaPoints: ChartPoint[] = record.visits.map((v) =>
+    pointWithZ(v.ageTotalMonths, v.heightCm, v, v.measurements[0]?.heightForAgeZ),
+  );
 
-  const hcPoints: ChartPoint[] = patient.visits
+  const bmiPoints: ChartPoint[] = record.visits.map((v) =>
+    pointWithZ(v.ageTotalMonths, v.bmi, v, v.measurements[0]?.bmiForAgeZ),
+  );
+
+  const wfhPoints: ChartPoint[] = record.visits.map((v) =>
+    pointWithZ(
+      v.heightCm,
+      v.weightKg,
+      v,
+      v.measurements[0]?.weightForHeightZ ?? v.measurements[0]?.bmiForAgeZ,
+    ),
+  );
+
+  const hcPoints: ChartPoint[] = record.visits
     .filter((v) => v.headCircumferenceCm != null)
-    .map((v) => ({
-      x: v.ageTotalMonths,
-      y: v.headCircumferenceCm,
-      visitId: v.id,
-      visitDate: v.visitDate.toISOString().slice(0, 10),
-    }));
+    .map((v) =>
+      pointWithZ(
+        v.ageTotalMonths,
+        v.headCircumferenceCm!,
+        v,
+        v.measurements[0]?.hcForAgeZ,
+      ),
+    );
 
   const velocityPoints: ChartPoint[] = [];
-  for (let i = 1; i < patient.visits.length; i++) {
-    const a = patient.visits[i - 1]!;
-    const b = patient.visits[i]!;
+  for (let i = 1; i < record.visits.length; i++) {
+    const a = record.visits[i - 1]!;
+    const b = record.visits[i]!;
     const months = b.ageTotalMonths - a.ageTotalMonths;
     if (months <= 0) continue;
     const vel =
       b.measurements[0]?.growthVelocityKgPerMonth ??
       (b.weightKg - a.weightKg) / months;
+    const wazDelta =
+      (b.measurements[0]?.weightForAgeZ ?? 0) -
+      (a.measurements[0]?.weightForAgeZ ?? 0);
+    const color =
+      wazDelta <= -1 ? "red" : wazDelta < -0.5 ? "orange" : "green";
     velocityPoints.push({
       x: b.ageTotalMonths,
       y: vel,
       visitId: b.id,
       visitDate: b.visitDate.toISOString().slice(0, 10),
       label: "kg/month",
+      zScore: wazDelta,
+      severityColor: color,
     });
   }
 
@@ -230,10 +262,10 @@ export async function buildChartPayload(
   };
 
   return {
-    patientId: patient.patientId,
-    name: patient.name,
-    sex: patient.sex,
-    dateOfBirth: patient.dateOfBirth.toISOString().slice(0, 10),
+    patientId: record.patientId,
+    name: record.name,
+    sex: record.sex,
+    dateOfBirth: record.dateOfBirth.toISOString().slice(0, 10),
     charts: { WFA, HFA, BMI, WFH, HC, velocity },
   };
 }

@@ -6,6 +6,7 @@ import {
   UserPlus,
   CalendarClock,
 } from "lucide-react";
+import { AccessGate } from "@/components/growth/access-gate";
 import { SearchPanel } from "@/components/growth/search-panel";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,8 +28,9 @@ export default function GrowthHomePage() {
           Monitor growth with WHO & IAP charts
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Register children, find existing records, review z-scores, and export
-          clinical reports for follow-up visits.
+          Parents open records with a mobile OTP. Clinic staff use password
+          login for full search and follow-up visits. Phone number alone is not
+          enough to download reports.
         </p>
       </div>
 
@@ -51,12 +53,14 @@ export default function GrowthHomePage() {
         <CardHeader>
           <CardTitle className="text-xl">Quick patient search</CardTitle>
           <CardDescription>
-            Search by patient ID, name, mobile, or parent — then open the
+            Verify OTP (parents) or staff login, then search and open the
             dashboard.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SearchPanel compact />
+          <AccessGate title="Verify to search your child’s records">
+            <SearchPanel compact />
+          </AccessGate>
         </CardContent>
       </Card>
 
@@ -70,21 +74,19 @@ export default function GrowthHomePage() {
           {
             icon: FileDown,
             title: "PDF & CSV export",
-            body: "Download visit history and printable growth summaries for records.",
+            body: "Download visit history and printable growth summaries after OTP or staff login.",
           },
           {
             icon: CalendarClock,
-            title: "Follow-up alerts",
-            body: "Track due visits, faltering growth signals, and vaccination notes.",
+            title: "Follow-up ready",
+            body: "Track due visits and growth signals. Staff add clinical follow-up visits.",
           },
-        ].map((f) => (
-          <Card key={f.title}>
-            <CardHeader>
-              <f.icon className="h-5 w-5 text-accent" />
-              <CardTitle className="text-xl">{f.title}</CardTitle>
-              <CardDescription>{f.body}</CardDescription>
-            </CardHeader>
-          </Card>
+        ].map((item) => (
+          <div key={item.title} className="space-y-2 border-t border-border pt-4">
+            <item.icon className="h-5 w-5 text-accent" aria-hidden />
+            <h3 className="font-display text-lg font-semibold">{item.title}</h3>
+            <p className="text-sm text-muted-foreground">{item.body}</p>
+          </div>
         ))}
       </div>
     </div>

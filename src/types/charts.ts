@@ -6,6 +6,10 @@ export type ChartPoint = {
   visitId?: string;
   visitDate?: string;
   label?: string;
+  /** Indicator Z-score at this visit (for color coding). */
+  zScore?: number | null;
+  /** Traffic-light severity derived from Z-score or visit status. */
+  severityColor?: "green" | "yellow" | "orange" | "red";
 };
 
 export type PercentileCurve = {

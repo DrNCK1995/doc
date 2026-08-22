@@ -9,6 +9,10 @@ import {
   FileText,
   Printer,
 } from "lucide-react";
+import {
+  AccessGate,
+  useGrowthAuth,
+} from "@/components/growth/access-gate";
 import { GrowthCharts } from "@/components/growth/growth-charts";
 import { FollowUpForm } from "@/components/growth/follow-up-form";
 import { PatientSummary } from "@/components/growth/patient-summary";
@@ -33,8 +37,18 @@ import { inferSeverityColor } from "@/types/api";
 import { toast } from "@/components/ui/use-toast";
 
 export default function PatientDashboardPage() {
+  return (
+    <AccessGate title="Verify to open this child’s growth record">
+      <PatientDashboardInner />
+    </AccessGate>
+  );
+}
+
+function PatientDashboardInner() {
   const params = useParams<{ patientId: string }>();
   const patientId = decodeURIComponent(params.patientId);
+  const { auth } = useGrowthAuth();
+  const isStaff = auth?.authenticated && auth.role === "staff";
   const { patient, visits, alerts, loading, error, refresh } =
     usePatient(patientId);
   const {
@@ -193,7 +207,9 @@ export default function PatientDashboardPage() {
         <TabsList className="no-print">
           <TabsTrigger value="charts">Charts</TabsTrigger>
           <TabsTrigger value="visits">Visits</TabsTrigger>
-          <TabsTrigger value="follow-up">Add Follow-up</TabsTrigger>
+          {isStaff ? (
+            <TabsTrigger value="follow-up">Add Follow-up</TabsTrigger>
+          ) : null}
           <TabsTrigger value="vaccinations">Vaccinations</TabsTrigger>
           <TabsTrigger value="export">Export</TabsTrigger>
         </TabsList>
@@ -278,20 +294,22 @@ export default function PatientDashboardPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="follow-up">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">Add follow-up visit</CardTitle>
-              <CardDescription>
-                New anthropometry creates a new visit snapshot and recalculates
-                growth metrics.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FollowUpForm patientId={patientId} onSuccess={refreshAll} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {isStaff ? (
+          <TabsContent value="follow-up">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Add follow-up visit</CardTitle>
+                <CardDescription>
+                  New anthropometry creates a new visit snapshot and recalculates
+                  growth metrics. Staff only.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FollowUpForm patientId={patientId} onSuccess={refreshAll} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        ) : null}
 
         <TabsContent value="vaccinations">
           <Card>

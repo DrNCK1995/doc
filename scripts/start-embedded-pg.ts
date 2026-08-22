@@ -1,6 +1,6 @@
 /**
  * Starts an embedded PostgreSQL for local development (no Docker required).
- * Writes connection info and keeps the process alive until SIGINT/SIGTERM.
+ * Reuses `.embedded-pg` if already initialized.
  */
 import { existsSync, mkdirSync, writeFileSync } from "fs";
 import path from "path";
@@ -13,6 +13,8 @@ const DATABASE = "growth_monitor";
 async function main() {
   if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 
+  const alreadyInitialized = existsSync(path.join(DATA_DIR, "PG_VERSION"));
+
   const pg = new EmbeddedPostgres({
     databaseDir: DATA_DIR,
     user: "postgres",
@@ -22,7 +24,11 @@ async function main() {
   });
 
   console.log(`Starting embedded PostgreSQL on port ${PORT}…`);
-  await pg.initialise();
+  if (!alreadyInitialized) {
+    await pg.initialise();
+  } else {
+    console.log("Existing data directory detected — skipping initdb.");
+  }
   await pg.start();
 
   try {
@@ -43,13 +49,16 @@ async function main() {
 
   const stop = async () => {
     console.log("\nStopping embedded PostgreSQL…");
-    await pg.stop();
+    try {
+      await pg.stop();
+    } catch {
+      /* ignore */
+    }
     process.exit(0);
   };
   process.on("SIGINT", stop);
   process.on("SIGTERM", stop);
 
-  // Keep alive
   await new Promise(() => {});
 }
 

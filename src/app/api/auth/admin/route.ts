@@ -1,64 +1,88 @@
-import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import {
+  clearClinicSessionCookie,
+  isOwnerPassword,
+  mintOwnerSessionToken,
+  mintStaffSessionToken,
+  resolveClinicSession,
+  setClinicSessionCookie,
+  ADMIN_COOKIE_NAME,
+} from "@/lib/auth/admin-session";
+import { verifyStaffPassword } from "@/lib/auth/staff-account";
 import { writeAuditLog } from "@/lib/services/audit";
 
-const COOKIE_NAME = "admin_session";
 const bodySchema = z.object({
   password: z.string().min(1),
 });
 
-function expectedToken(adminPassword: string): string {
-  return createHmac("sha256", adminPassword).update("admin-session-v1").digest("hex");
+function clientIp(req: NextRequest): string | undefined {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("x-real-ip") ||
+    undefined
+  );
 }
 
-function passwordsEqual(a: string, b: string): boolean {
-  const bufA = Buffer.from(a);
-  const bufB = Buffer.from(b);
-  if (bufA.length !== bufB.length) {
-    // still run a compare to reduce timing leaks on length
-    timingSafeEqual(bufA, bufA);
-    return false;
+export async function GET(req: NextRequest) {
+  const kind = await resolveClinicSession(
+    req.cookies.get(ADMIN_COOKIE_NAME)?.value,
+  );
+  if (!kind) {
+    return NextResponse.json({ authenticated: false });
   }
-  return timingSafeEqual(bufA, bufB);
+  return NextResponse.json({
+    authenticated: true,
+    role: kind === "owner" ? "admin" : "staff",
+    kind,
+    canChangePassword: kind === "staff",
+  });
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const adminPassword = process.env.ADMIN_PASSWORD;
-    if (!adminPassword) {
-      return NextResponse.json(
-        { error: "Admin auth is not configured" },
-        { status: 503 },
-      );
+    const body = bodySchema.parse(await req.json());
+
+    if (isOwnerPassword(body.password)) {
+      const token = await mintOwnerSessionToken();
+      const res = NextResponse.json({
+        ok: true,
+        role: "admin",
+        kind: "owner",
+        canChangePassword: false,
+      });
+      setClinicSessionCookie(res, token);
+      await writeAuditLog({
+        action: "OWNER_LOGIN",
+        entityType: "Auth",
+        ipAddress: clientIp(req),
+      });
+      return res;
     }
 
-    const body = bodySchema.parse(await req.json());
-    if (!passwordsEqual(body.password, adminPassword)) {
+    const staffOk = await verifyStaffPassword(body.password);
+    if (!staffOk) {
       await writeAuditLog({
         action: "ADMIN_LOGIN_FAILED",
         entityType: "Auth",
-        ipAddress:
-          req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined,
+        ipAddress: clientIp(req),
       });
       return NextResponse.json({ error: "Invalid password" }, { status: 401 });
     }
 
-    const token = expectedToken(adminPassword);
-    const res = NextResponse.json({ ok: true, role: "ADMIN" });
-    res.cookies.set(COOKIE_NAME, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 12, // 12 hours
+    const token = await mintStaffSessionToken();
+    const res = NextResponse.json({
+      ok: true,
+      role: "staff",
+      kind: "staff",
+      canChangePassword: true,
     });
+    setClinicSessionCookie(res, token);
 
     await writeAuditLog({
       action: "ADMIN_LOGIN",
       entityType: "Auth",
-      ipAddress:
-        req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined,
+      ipAddress: clientIp(req),
     });
 
     return res;
@@ -77,18 +101,11 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const res = NextResponse.json({ ok: true });
-    res.cookies.set(COOKIE_NAME, "", {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 0,
-    });
+    clearClinicSessionCookie(res);
     await writeAuditLog({
       action: "ADMIN_LOGOUT",
       entityType: "Auth",
-      ipAddress:
-        req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined,
+      ipAddress: clientIp(req),
     });
     return res;
   } catch (err) {

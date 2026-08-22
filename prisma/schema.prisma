@@ -38,10 +38,23 @@ model User {
   email        String    @unique
   name         String?
   passwordHash String
-  role         Role      @default(ADMIN)
+  role         Role      @default(STAFF)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   auditLogs    AuditLog[]
+}
+
+/// Parent login for growth records (userId or mobile + password).
+model ParentAccount {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  mobile       String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([mobile])
 }
 
 model Patient {
@@ -220,4 +233,16 @@ model AuditLog {
   user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   @@index([entityType, entityId])
   @@index([createdAt])
+}
+
+/// Short-lived OTP for parent mobile verification (public growth access).
+model OtpChallenge {
+  id        String   @id @default(uuid())
+  mobile    String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([mobile, createdAt])
 }

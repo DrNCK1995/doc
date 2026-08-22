@@ -10,8 +10,7 @@ import { cn } from "@/lib/utils/cn";
 const navLinks = [
   { href: "#about", label: "About" },
   { href: "#practice", label: "Practice" },
-  { href: "#vaccination", label: "Vaccination" },
-  { href: "/growth", label: "Growth Monitor" },
+  { href: "/dashboard", label: "Dashboard" },
   { href: "#book", label: "Book Consult" },
 ];
 
@@ -55,7 +54,7 @@ export function SiteHeader() {
           ))}
           <ThemeToggle />
           <Button asChild size="sm">
-            <Link href="/growth">Open Growth App</Link>
+            <Link href="/dashboard">Child health dashboard</Link>
           </Button>
         </nav>
 
@@ -90,8 +89,8 @@ export function SiteHeader() {
               </Link>
             ))}
             <Button asChild className="mt-2">
-              <Link href="/growth" onClick={() => setOpen(false)}>
-                Open Growth App
+              <Link href="/dashboard" onClick={() => setOpen(false)}>
+                Child health dashboard
               </Link>
             </Button>
           </nav>
