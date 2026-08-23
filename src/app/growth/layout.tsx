@@ -51,7 +51,9 @@ export default function GrowthLayout({
   if (auth?.authenticated) {
     if (auth.role === "admin") roleLabel = "Admin";
     else if (auth.role === "staff") roleLabel = "Staff";
-    else roleLabel = `Parent · ${auth.userId ?? auth.mobile}`;
+    else if (auth.role === "parent") {
+      roleLabel = `Parent · ${auth.userId ?? auth.mobile}`;
+    }
   }
 
   return (
