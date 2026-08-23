@@ -48,9 +48,18 @@ export async function POST(req: NextRequest) {
       );
     }
     console.error("POST /api/patients", err);
+    const message = err instanceof Error ? err.message : "";
+    const dbDown =
+      message.includes("Can't reach database server") ||
+      message.includes("P1001") ||
+      (err as { code?: string })?.code === "P1001";
     return NextResponse.json(
-      { error: "Failed to create patient" },
-      { status: 500 },
+      {
+        error: dbDown
+          ? "Database is not connected on the server. Set DATABASE_URL to a cloud Postgres (e.g. Neon) in Vercel project settings, then redeploy."
+          : "Failed to create patient",
+      },
+      { status: dbDown ? 503 : 500 },
     );
   }
 }
