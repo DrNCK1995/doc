@@ -21,15 +21,14 @@ export default function GrowthHomePage() {
     <div className="space-y-10">
       <div className="max-w-2xl">
         <p className="text-xs font-semibold uppercase tracking-wider text-accent">
-          Pediatric growth workspace
+          Grow Right
         </p>
         <h1 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">
-          Monitor growth with WHO & IAP charts
+          Track your child&apos;s growth
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Register a child, search records, plot WHO / IAP charts, and export
-          clinical reports. Records are stored in the clinic database (Prisma /
-          PostgreSQL) — no sign-in required.
+          Register a child, plot WHO / IAP charts, and export reports. Your
+          Growth Tracker — clear curves for parents and clinicians.
         </p>
       </div>
 

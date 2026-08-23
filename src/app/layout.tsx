@@ -28,18 +28,18 @@ const notoTelugu = Noto_Sans_Telugu({
 
 export const metadata: Metadata = {
   title: {
-    default: "Dr. Chaitanya Krishna | Pediatric Growth Monitor",
-    template: "%s | Dr. Chaitanya Krishna",
+    default: "Dr Care for Kids | Healthy Kids. Happy Parents.",
+    template: "%s | Dr Care for Kids",
   },
   description:
-    "Consultant paediatrician and intensivist at Imperial Hospitals, Bhimavaram. Paediatric critical care, NICU, preventive paediatrics, vaccination, and growth monitoring.",
-  applicationName: "Pediatric Growth Monitor",
+    "Your child's health companion — trusted pediatric care, Vaccine Buddy, Grow Right, Fever Guide, Dose Check, and parent-friendly tools by Dr. N. Chaitanya Krishna.",
+  applicationName: "Dr Care for Kids",
   manifest: "/manifest.json",
   keywords: [
-    "pediatric growth",
-    "WHO charts",
-    "IAP charts",
-    "growth monitoring",
+    "Dr Care for Kids",
+    "pediatric tools",
+    "vaccine buddy",
+    "growth tracker",
     "Dr Chaitanya Krishna",
   ],
 };

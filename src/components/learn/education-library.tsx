@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
@@ -18,6 +19,7 @@ import {
   isAgeBandId,
   topicsForBand,
 } from "@/lib/learn/library";
+import { PARENT_FAQ_SECTIONS } from "@/lib/learn/faqs";
 import type { AgeBandId, LearnLang, LearnTopic } from "@/lib/learn/types";
 import { cn } from "@/lib/utils/cn";
 
@@ -43,6 +45,15 @@ const COPY = {
   explanation: { en: "In two minutes", te: "రెండు నిమిషాల్లో" },
   infographic: { en: "Infographic", te: "సూచన చిత్రం" },
   seeDoctor: { en: "When to see the doctor", te: "డాక్టర్‌ను ఎప్పుడు చూపించాలి" },
+  faqsEyebrow: { en: "At a glance", te: "ఒక చూపులో" },
+  faqsTitle: {
+    en: "Common problems & FAQs",
+    te: "సాధారణ సమస్యలు & ప్రశ్నోత్తరాలు",
+  },
+  faqsLead: {
+    en: "Fever, vaccines, sleep, nutrition, Type 1 diabetes, and hypothyroidism — short answers for busy parents. Education only, not a personal diagnosis.",
+    te: "జ్వరం, టీకాలు, నిద్ర, పోషణ, టైప్ 1 డయాబెటిస్, హైపోథైరాయిడిజం — తల్లిదండ్రులకు చిన్న సమాధానాలు. విద్య మాత్రమే, వ్యక్తిగత రోగ నిర్ధారణ కాదు.",
+  },
 };
 
 export function EducationLibrary() {
@@ -161,6 +172,8 @@ export function EducationLibrary() {
       </div>
 
       {topic ? <TopicPane key={`${topic.id}-${lang}`} lang={lang} topic={topic} /> : null}
+
+      <ParentFaqBlock lang={lang} />
 
       <ScreeningDisclaimer />
     </div>
@@ -314,5 +327,86 @@ function InfographicStrip({ lang, topic }: { lang: LearnLang; topic: LearnTopic 
         </li>
       ))}
     </ol>
+  );
+}
+
+function ParentFaqBlock({ lang }: { lang: LearnLang }) {
+  const [openId, setOpenId] = React.useState<string | null>(
+    PARENT_FAQ_SECTIONS[0]?.id ?? null,
+  );
+
+  return (
+    <section id="parent-faqs" className="scroll-mt-24 space-y-6 border-t border-border/80 pt-10">
+      <div className="max-w-2xl">
+        <p className="text-xs font-semibold uppercase tracking-wider text-accent">
+          {COPY.faqsEyebrow[lang]}
+        </p>
+        <h2 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">
+          {COPY.faqsTitle[lang]}
+        </h2>
+        <p className="mt-3 text-muted-foreground">{COPY.faqsLead[lang]}</p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {PARENT_FAQ_SECTIONS.map((section) => {
+          const active = openId === section.id;
+          return (
+            <button
+              key={section.id}
+              type="button"
+              onClick={() => setOpenId(section.id)}
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-sm transition",
+                active
+                  ? "border-primary bg-primary/10 font-medium text-foreground"
+                  : "border-border/80 text-muted-foreground hover:border-accent/50",
+              )}
+            >
+              <span aria-hidden>{section.emoji} </span>
+              {section.title[lang]}
+            </button>
+          );
+        })}
+      </div>
+
+      {PARENT_FAQ_SECTIONS.filter((s) => s.id === openId).map((section) => (
+        <div
+          key={section.id}
+          className="space-y-4 rounded-3xl border border-border/80 bg-card/80 p-5 sm:p-7"
+        >
+          <div>
+            <h3 className="font-display text-2xl font-semibold">
+              <span aria-hidden>{section.emoji} </span>
+              {section.title[lang]}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {section.intro[lang]}
+            </p>
+          </div>
+          <ul className="space-y-3">
+            {section.items.map((item) => (
+              <li key={item.q.en}>
+                <details className="group rounded-2xl border border-border/60 bg-background/70 px-4 py-3 open:border-accent/40">
+                  <summary className="cursor-pointer list-none font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+                    <span className="flex items-start justify-between gap-3">
+                      <span>{item.q[lang]}</span>
+                      <span
+                        className="shrink-0 text-accent transition group-open:rotate-45"
+                        aria-hidden
+                      >
+                        +
+                      </span>
+                    </span>
+                  </summary>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    {item.a[lang]}
+                  </p>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </section>
   );
 }

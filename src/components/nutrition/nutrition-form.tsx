@@ -443,6 +443,15 @@ function NutritionResultView({ result }: { result: NutritionResult }) {
         <Button asChild variant="outline" size="sm" className="mt-3">
           <Link href="/growth">Open Growth Monitor for WHO/IAP charts</Link>
         </Button>
+        <Button asChild variant="secondary" size="sm" className="mt-3 ml-2">
+          <Link href="#south-indian-diet">
+            Open South Indian diet chart
+            {result.weightPercentExpected != null &&
+            result.weightPercentExpected < 80
+              ? " (catch-up)"
+              : ""}
+          </Link>
+        </Button>
       </div>
 
       <div>

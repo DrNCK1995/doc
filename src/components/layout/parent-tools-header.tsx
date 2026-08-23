@@ -3,20 +3,11 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { BRAND_NAME, TOOLS_NAV } from "@/lib/site-nav";
 import { cn } from "@/lib/utils/cn";
-
-const links = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/growth", label: "Growth" },
-  { href: "/vaccination", label: "Vaccination" },
-  { href: "/screening", label: "Development" },
-  { href: "/nutrition", label: "Nutrition" },
-  { href: "/dosage", label: "Common drugs" },
-  { href: "/learn", label: "Learn" },
-];
 
 export function ParentToolsHeader({ title }: { title: string }) {
   const pathname = usePathname();
@@ -25,17 +16,27 @@ export function ParentToolsHeader({ title }: { title: string }) {
   return (
     <header className="no-print sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md">
       <div className="container-page flex h-14 items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="font-display text-lg font-semibold text-primary">
-            {title}
+        <div className="flex min-w-0 items-center gap-3">
+          <Link
+            href="/"
+            className="shrink-0 font-display text-lg font-semibold text-primary"
+          >
+            {BRAND_NAME}
           </Link>
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Parent tools">
-            {links.map((link) => (
+          <span className="hidden text-muted-foreground sm:inline">/</span>
+          <span className="truncate text-sm font-medium text-muted-foreground">
+            {title}
+          </span>
+          <nav
+            className="ml-2 hidden items-center gap-1 xl:flex"
+            aria-label="Parent tools"
+          >
+            {TOOLS_NAV.slice(0, 7).map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+                  "rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors",
                   pathname === link.href
                     ? "bg-secondary text-foreground"
                     : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
@@ -48,16 +49,13 @@ export function ParentToolsHeader({ title }: { title: string }) {
         </div>
         <div className="flex items-center gap-1">
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link href="/">
-              <ArrowLeft className="h-4 w-4" />
-              Portfolio
-            </Link>
+            <Link href="/my-child">My Child</Link>
           </Button>
           <ThemeToggle />
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="xl:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((v) => !v)}
           >
@@ -66,8 +64,8 @@ export function ParentToolsHeader({ title }: { title: string }) {
         </div>
       </div>
       {open ? (
-        <nav className="border-t border-border px-4 py-3 md:hidden">
-          {links.map((link) => (
+        <nav className="border-t border-border px-4 py-3 xl:hidden">
+          {TOOLS_NAV.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -78,11 +76,11 @@ export function ParentToolsHeader({ title }: { title: string }) {
             </Link>
           ))}
           <Link
-            href="/"
+            href="/my-child"
             className="mt-1 block rounded-lg px-3 py-2 text-sm font-medium hover:bg-secondary"
             onClick={() => setOpen(false)}
           >
-            Back to portfolio
+            My Child
           </Link>
         </nav>
       ) : null}

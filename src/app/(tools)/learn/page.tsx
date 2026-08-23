@@ -5,7 +5,7 @@ import { EducationLibrary } from "@/components/learn/education-library";
 export const metadata: Metadata = {
   title: "Parent education library",
   description:
-    "Age-based parent guides from newborn to five years, in English and Telugu — short explanations, infographics, and when to see the doctor.",
+    "Age-based parent guides plus FAQs on fever, vaccines, sleep, nutrition, Type 1 diabetes, and hypothyroidism — English and Telugu.",
 };
 
 export default function LearnPage() {

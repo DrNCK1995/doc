@@ -245,12 +245,12 @@ export function ChildHealthDashboardView({
       <section id="dash-vaccination" className="scroll-mt-20 space-y-3">
         <h3 className="font-display text-2xl font-semibold">Vaccination</h3>
         <p className="text-sm text-muted-foreground">
-          Enrol for a personalised schedule PDF and automatic due-date email
-          reminders.
+          Vaccine Buddy — enrol once for a free schedule PDF and free due-date
+          email reminders.
         </p>
         <Button asChild className="no-print">
           <a href={VACCINATION_FORM_URL} target="_blank" rel="noopener noreferrer">
-            Get vaccination PDF & reminders
+            Free Vaccine reminder
             <ExternalLink className="h-4 w-4" />
           </a>
         </Button>

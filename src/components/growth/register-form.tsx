@@ -1,9 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { calculateAge } from "@/lib/growth/age";
 import { formatAge } from "@/lib/utils/format";
+import {
+  readMyChildProfile,
+  writeMyChildProfile,
+} from "@/lib/my-child/profile";
 import { createPatientSchema } from "@/lib/validations/patient";
 import { parseApiError } from "@/types/api";
 import { Button } from "@/components/ui/button";
@@ -59,11 +64,39 @@ function requiredNumber(value: string): number {
 
 export function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [form, setForm] = React.useState<FormState>(initial);
   const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>(
     {},
   );
   const [submitting, setSubmitting] = React.useState(false);
+  const [fromMyChild, setFromMyChild] = React.useState(false);
+
+  React.useEffect(() => {
+    const qpName = searchParams.get("name")?.trim() ?? "";
+    const qpDob = searchParams.get("dob")?.trim() ?? "";
+    const qpSex = searchParams.get("sex");
+    const from = searchParams.get("from");
+    const saved = readMyChildProfile();
+
+    const name = qpName || saved?.name || "";
+    const dateOfBirth = qpDob || saved?.dateOfBirth || "";
+    const sexRaw = qpSex || saved?.sex || "";
+    const sex =
+      sexRaw === "MALE" || sexRaw === "FEMALE" ? sexRaw : ("" as const);
+
+    if (name || dateOfBirth || sex) {
+      setForm((prev) => ({
+        ...prev,
+        name: name || prev.name,
+        dateOfBirth: dateOfBirth || prev.dateOfBirth,
+        sex: sex || prev.sex,
+      }));
+    }
+    if (from === "my-child" || Boolean(qpName && qpDob) || Boolean(saved)) {
+      setFromMyChild(true);
+    }
+  }, [searchParams]);
 
   const liveAge = React.useMemo(() => {
     if (!form.dateOfBirth) return null;
@@ -126,9 +159,15 @@ export function RegisterForm() {
       });
       if (!res.ok) throw new Error(await parseApiError(res));
       const data = (await res.json()) as { patient: { patientId: string } };
+      writeMyChildProfile({
+        name: parsed.data.name,
+        dateOfBirth: form.dateOfBirth,
+        sex: parsed.data.sex,
+        patientId: data.patient.patientId,
+      });
       toast({
         title: "Child registered",
-        description: `Patient ID ${data.patient.patientId}`,
+        description: `Patient ID ${data.patient.patientId}. Also saved to My Child.`,
       });
       router.push(`/growth/patients/${encodeURIComponent(data.patient.patientId)}`);
     } catch (err) {
@@ -144,6 +183,25 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
+      {fromMyChild ? (
+        <p className="rounded-xl border border-accent/30 bg-accent/5 px-4 py-3 text-sm text-muted-foreground">
+          Prefilling from{" "}
+          <Link href="/my-child" className="font-medium text-primary underline-offset-2 hover:underline">
+            My Child
+          </Link>
+          . Add measurements below to create the Grow Right record — we&apos;ll
+          keep My Child linked after you save.
+        </p>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Tip: set up{" "}
+          <Link href="/my-child" className="font-medium text-primary underline-offset-2 hover:underline">
+            My Child
+          </Link>{" "}
+          first for age-based vaccine and feeding guidance, then register here
+          for charts.
+        </p>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
           label="Child name"

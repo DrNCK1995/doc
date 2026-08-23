@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -13,8 +14,9 @@ export default function RegisterPage() {
       <div>
         <h1 className="font-display text-3xl font-semibold">Register child</h1>
         <p className="mt-2 text-muted-foreground">
-          Enter the child’s details and first measurements to create a growth
-          record.
+          Enter the child&apos;s details and first measurements to create a Grow
+          Right record. If you already use My Child, name, DOB, and gender are
+          prefilled and kept in sync after registration.
         </p>
       </div>
       <Card>
@@ -25,7 +27,9 @@ export default function RegisterPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <RegisterForm />
+          <Suspense fallback={<p className="text-sm text-muted-foreground">Loading form…</p>}>
+            <RegisterForm />
+          </Suspense>
         </CardContent>
       </Card>
     </div>

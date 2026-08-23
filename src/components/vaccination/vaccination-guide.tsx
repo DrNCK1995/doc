@@ -39,26 +39,26 @@ function ReminderCta({
   return (
     <section className={className}>
       <p className="text-xs font-semibold uppercase tracking-wider text-accent">
-        Automated vaccination
+        Vaccine Buddy
       </p>
       <h2 className="mt-2 font-display text-2xl font-semibold sm:text-3xl">
-        Schedule PDF and due-date reminders
+        Free Vaccine reminder
       </h2>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-        Submit name, date of birth, gender, and parent email. A vaccination
-        schedule PDF is emailed automatically, with reminders three days before
-        each due date and on the day itself.
+        Submit name, date of birth, gender, and parent email. You get a free
+        vaccine schedule PDF by email, plus free reminders three days before each
+        due date and on the day itself.
       </p>
       <div className="mt-4">
         <Button asChild size="lg">
           <a href={VACCINATION_FORM_URL} target="_blank" rel="noopener noreferrer">
-            Get vaccination PDF & reminders
+            Free Vaccine reminder
             <ExternalLink className="h-4 w-4" />
           </a>
         </Button>
       </div>
       <p className="mt-2 text-sm text-muted-foreground">
-        Opens Google Form · PDF arrives by email after submit
+        Opens Google Form · free PDF + reminders by email after submit
       </p>
       {showDisclaimer ? (
         <div className="mt-4">

@@ -8,7 +8,7 @@ export default function ToolsGroupLayout({
 }) {
   return (
     <div className="min-h-screen">
-      <ParentToolsHeader title="Child health" />
+      <ParentToolsHeader title="Parent Tools" />
       <div className="container-page py-8">{children}</div>
     </div>
   );

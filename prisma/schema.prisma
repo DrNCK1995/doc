@@ -246,3 +246,61 @@ model OtpChallenge {
 
   @@index([mobile, createdAt])
 }
+
+enum AppointmentStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum AppointmentVisitType {
+  CONSULTATION
+  FOLLOW_UP
+  VACCINATION
+  NEWBORN
+  GROWTH
+}
+
+/// Clinic consult booking with Razorpay payment and reminder tracking.
+model Appointment {
+  id                   String                @id @default(uuid())
+  confirmationCode     String                @unique
+  status               AppointmentStatus     @default(PENDING_PAYMENT)
+  visitType            AppointmentVisitType  @default(CONSULTATION)
+
+  appointmentDate      DateTime              @db.Date
+  slotStart            String // "10:00" 24h
+  slotLabel            String // "10:00 AM"
+
+  parentName           String
+  parentEmail          String
+  parentMobile         String
+  childName            String
+  childAgeNote         String?
+  reason               String?
+
+  amountPaise          Int
+  currency             String                @default("INR")
+  razorpayOrderId      String?               @unique
+  razorpayPaymentId    String?
+  razorpaySignature    String?
+  paidAt               DateTime?
+
+  /// Hold unpaid slot until this time
+  paymentExpiresAt     DateTime?
+
+  confirmationSentAt   DateTime?
+  parentReminderSentAt DateTime?
+  doctorReminderSentAt DateTime?
+
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  @@index([appointmentDate, slotStart, status])
+  @@index([status, appointmentDate])
+  @@index([parentMobile])
+  @@index([parentEmail])
+  @@index([paymentExpiresAt])
+}

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { VaccinationGuide } from "@/components/vaccination/vaccination-guide";
 
 export const metadata: Metadata = {
-  title: "IAP vaccination schedule",
+  title: "Vaccine Buddy — free vaccine reminder",
   description:
-    "Vaccination infographics, IAP ACVIP 2023 timetable, why each vaccine is given, private vs UIP, and automated PDF reminders.",
+    "Vaccine Buddy: IAP schedule, guides, and a free vaccine reminder with PDF and due-date emails.",
 };
 
 export default function VaccinationPage() {
@@ -12,15 +12,15 @@ export default function VaccinationPage() {
     <div className="mx-auto max-w-5xl space-y-8">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider text-accent">
-          Vaccination
+          Vaccine Buddy
         </p>
         <h1 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">
-          Infographics, IAP schedule, and private vs UIP
+          Never miss a vaccine — free vaccine reminder
         </h1>
         <p className="mt-3 max-w-3xl text-muted-foreground">
-          Enrol for a PDF and email reminders, then use the visual guides and full
-          IAP timetable — including which shots are usually private beyond free
-          government UIP vaccines.
+          Visual guides, the full IAP timetable, and a free vaccine reminder
+          (schedule PDF + due-date emails). Also see which shots are usually
+          private beyond free government UIP vaccines.
         </p>
       </div>
       <VaccinationGuide />
