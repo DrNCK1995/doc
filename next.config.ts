@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Ensure WHO/IAP LMS JSON ships with serverless/standalone output
+  // so chart centile curves and Z-scores can load from disk.
+  outputFileTracingIncludes: {
+    "/**": ["./data/growth-references/**/*"],
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "4mb",

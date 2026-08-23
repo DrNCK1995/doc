@@ -1,11 +1,14 @@
 import type { GrowthIndicator, ReferenceSource, Sex } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
+import { derivedPercentiles } from "@/lib/growth/lms";
 import {
   severityFromStatus,
   severityFromZ,
   toTrafficLight,
 } from "@/lib/growth/severity-colors";
 import { selectReference } from "@/lib/growth/reference-selector";
+import type { GrowthIndicator as GrowthIndicatorType } from "@/lib/growth/types";
+import { getGrowthProvider } from "@/lib/services/growth";
 import type {
   ChartPayload,
   ChartPoint,
@@ -58,46 +61,49 @@ const INDICATOR_MAP: Record<
   },
 };
 
+/**
+ * Load P3–P97 curves from the same LMS provider used for Z-scores
+ * (JSON files first). Prisma LMS tables are often empty on Vercel,
+ * which previously left charts with a patient point and no centiles.
+ */
 async function loadPercentileCurves(
   source: ReferenceSource,
   version: string,
   indicator: GrowthIndicator,
   sex: Sex,
 ): Promise<{ curves: PercentileCurve[]; versionLabel: string }> {
-  const ref = await prisma.growthReferenceVersion.findUnique({
-    where: { source_version: { source, version } },
-  });
+  const keys: PercentileKey[] = ["p3", "p15", "p50", "p85", "p97"];
+  try {
+    const points = await getGrowthProvider().getLmsPoints(
+      source,
+      version,
+      indicator as GrowthIndicatorType,
+      sex,
+    );
 
-  if (!ref) {
-    // Fallback: any active version for source
-    const fallback = await prisma.growthReferenceVersion.findFirst({
-      where: { source, isActive: true },
-      orderBy: { importedAt: "desc" },
-    });
-    if (!fallback) {
+    if (!points.length) {
       return { curves: emptyCurves(), versionLabel: version };
     }
-    return loadPercentileCurves(source, fallback.version, indicator, sex);
+
+    const curves: PercentileCurve[] = keys.map((key) => ({
+      percentile: key,
+      points: points
+        .map((p) => {
+          const published = p[key];
+          const y =
+            published != null && Number.isFinite(published)
+              ? published
+              : derivedPercentiles(p)[key];
+          return Number.isFinite(y) ? { x: p.xValue, y } : null;
+        })
+        .filter((pt): pt is { x: number; y: number } => pt != null),
+    }));
+
+    return { curves, versionLabel: version };
+  } catch (err) {
+    console.error("loadPercentileCurves", source, version, indicator, sex, err);
+    return { curves: emptyCurves(), versionLabel: version };
   }
-
-  const points = await prisma.lmsDataPoint.findMany({
-    where: {
-      versionId: ref.id,
-      indicator,
-      sex,
-    },
-    orderBy: { xValue: "asc" },
-  });
-
-  const keys: PercentileKey[] = ["p3", "p15", "p50", "p85", "p97"];
-  const curves: PercentileCurve[] = keys.map((key) => ({
-    percentile: key,
-    points: points
-      .filter((p) => p[key] != null)
-      .map((p) => ({ x: p.xValue, y: p[key] as number })),
-  }));
-
-  return { curves, versionLabel: ref.version };
 }
 
 function emptyCurves(): PercentileCurve[] {
