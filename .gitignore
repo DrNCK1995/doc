@@ -42,3 +42,7 @@ prisma/*.db-journal
 *.tsbuildinfo
 next-env.d.ts
 .vercel-mcp-files.json
+.vercel-deploy-payload.json
+.vercel-h0-*.txt
+.vercel-half-*.json
+.vercel-mcp-files*.json

@@ -1,0 +1,9 @@
+{
+  "target": "production",
+  "name": "doc",
+  "teamId": "team_8SRWAhTSEGAZJ9Xv4nqSj5uy",
+  "projectSettings": {
+    "framework": "nextjs"
+  },
+  "fileCount": 118
+}
