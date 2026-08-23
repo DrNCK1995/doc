@@ -1,6 +1,7 @@
 /**
- * Normalize DB env vars for Vercel (Neon + Prisma Postgres).
- * Prefer cloud URLs over any leftover local DATABASE_URL (127.0.0.1).
+ * Vercel build with Neon / Prisma Postgres.
+ * Prefers cloud connection strings over leftover localhost DATABASE_URL.
+ * Prefer Neon, then Prisma Postgres marketplace vars, then DATABASE_URL.
  */
 const { spawnSync } = require("child_process");
 
@@ -10,69 +11,91 @@ function isLocalUrl(url) {
   return /127\.0\.0\.1|localhost/.test(url || "");
 }
 
-const candidates = [
+function hostOf(url) {
+  try {
+    return new URL(String(url).replace(/^postgres(ql)?:/i, "https:")).hostname;
+  } catch {
+    return null;
+  }
+}
+
+function firstCloud(urls) {
+  return urls.filter(Boolean).find((u) => !isLocalUrl(u));
+}
+
+const present = [
+  "DATABASE_URL",
+  "DATABASE_URL_UNPOOLED",
+  "DIRECT_URL",
+  "POSTGRES_URL",
+  "POSTGRES_PRISMA_URL",
+  "POSTGRES_URL_NON_POOLING",
+  "POSTGRES_URL_NO_SSL",
+  "NEON_DATABASE_URL",
+  "PRISMA_DATABASE_URL",
+].filter((k) => Boolean(env[k]));
+
+console.log("DB-related env keys present:", present.length ? present.join(", ") : "(none)");
+
+// Prefer pooled cloud URLs for the app
+const pooled = firstCloud([
+  env.POSTGRES_PRISMA_URL, // Neon Prisma-optimized
+  env.POSTGRES_URL,
+  env.DATABASE_URL,
+]);
+
+// Prefer direct/unpooled for migrations
+const direct = firstCloud([
+  env.DATABASE_URL_UNPOOLED,
+  env.POSTGRES_URL_NON_POOLING,
+  env.DIRECT_URL,
   env.POSTGRES_PRISMA_URL,
   env.POSTGRES_URL,
   env.DATABASE_URL,
-  env.POSTGRES_URL_NON_POOLING,
-  env.DATABASE_URL_UNPOOLED,
-  env.DIRECT_URL,
-].filter(Boolean);
+]);
 
-const cloudUrl = candidates.find((u) => !isLocalUrl(u));
-const databaseUrl = cloudUrl || env.DATABASE_URL;
-
-if (!databaseUrl) {
-  console.error(
-    "Missing DATABASE_URL. In Vercel → Storage, connect Neon or Prisma Postgres to project doc, then redeploy.",
-  );
-  process.exit(1);
-}
-
-if (isLocalUrl(databaseUrl)) {
+if (!pooled && !direct) {
   console.error(
     [
-      "DATABASE_URL still points at localhost (127.0.0.1).",
-      "Fix: Vercel → Project doc → Settings → Environment Variables",
-      "1) DELETE any DATABASE_URL / DIRECT_URL that contains 127.0.0.1 or localhost",
-      "2) Keep only the Neon or Prisma Postgres URLs from Storage (host like neon.tech or prisma.io)",
-      "3) Use ONE database only (Neon OR Prisma Postgres)",
-      "4) Redeploy",
+      "No cloud DATABASE_URL found on this Vercel build.",
+      "Open: https://vercel.com/dr-nck/doc/settings/environment-variables",
+      "1) DELETE DATABASE_URL if it contains 127.0.0.1 or localhost",
+      "2) Storage → keep ONE of Neon or Prisma Postgres → Connect to project doc (Production)",
+      "3) Redeploy",
     ].join("\n"),
   );
   process.exit(1);
 }
 
-env.DATABASE_URL = databaseUrl;
+if (!pooled || isLocalUrl(pooled)) {
+  console.error(
+    [
+      "DATABASE_URL is still localhost. Marketplace DBs cannot override a manual localhost value.",
+      "Delete the localhost DATABASE_URL in Vercel Environment Variables, then reconnect Storage.",
+      "Host seen:",
+      hostOf(env.DATABASE_URL) || "(empty)",
+    ].join("\n"),
+  );
+  process.exit(1);
+}
 
-const directCandidates = [
-  env.DIRECT_URL,
-  env.DATABASE_URL_UNPOOLED,
-  env.POSTGRES_URL_NON_POOLING,
-  databaseUrl,
-].filter(Boolean);
+env.DATABASE_URL = pooled;
+const migrateUrl = direct && !isLocalUrl(direct) ? direct : pooled;
 
-env.DIRECT_URL = directCandidates.find((u) => !isLocalUrl(u)) || databaseUrl;
-env.DATABASE_URL_UNPOOLED = env.DATABASE_URL_UNPOOLED || env.DIRECT_URL;
+console.log("App DATABASE_URL host:", hostOf(pooled));
+console.log("Migrate host:", hostOf(migrateUrl));
 
-console.log(
-  "Using cloud database host:",
-  (() => {
-    try {
-      return new URL(databaseUrl.replace(/^postgres(ql)?:/, "https:")).hostname;
-    } catch {
-      return "(ok)";
-    }
-  })(),
-);
-
-function run(command, args) {
-  const result = spawnSync(command, args, { stdio: "inherit", env });
+function run(command, args, extraEnv = {}) {
+  const result = spawnSync(command, args, {
+    stdio: "inherit",
+    env: { ...env, ...extraEnv },
+  });
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
   }
 }
 
 run("npx", ["prisma", "generate"]);
-run("npx", ["prisma", "migrate", "deploy"]);
+// Migrations need a direct connection when using poolers
+run("npx", ["prisma", "migrate", "deploy"], { DATABASE_URL: migrateUrl });
 run("npx", ["next", "build"]);
