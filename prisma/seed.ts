@@ -151,9 +151,7 @@ async function seedAdmin(): Promise<void> {
   // Fingerprint for logs (not a secret)
   const fp = createHash("sha256").update(passwordHash).digest("hex").slice(0, 8);
   console.log(`Admin user ready (admin@growth.local), hash fingerprint ${fp}`);
-  console.log(
-    "Note: /api/auth/admin validates ADMIN_PASSWORD env directly; DB hash is for future staff auth.",
-  );
+  console.log("Note: clinic login was removed; User row is kept for schema compatibility.");
 }
 
 async function createSamplePatient(opts: {

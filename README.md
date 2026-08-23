@@ -14,7 +14,7 @@ Parents can register a child, enter measurements, view **WHO (0–5y)** / **IAP 
 - Interactive Recharts (WFA, HFA, BMI, WFH, HC, velocity)
 - Search by Patient ID, name, mobile, DOB
 - PDF + CSV export, print report, Patient ID QR
-- Optional admin cookie auth
+- Open Growth Monitor (no login)
 - Vaccination + developmental milestone models (extensible)
 - Versioned LMS reference datasets (JSON + DB import)
 - Docker Compose (PostgreSQL + app) and local embedded Postgres script
@@ -61,8 +61,6 @@ Open [http://localhost:3000](http://localhost:3000).
 - Growth app: [http://localhost:3000/growth](http://localhost:3000/growth)
 - Sample patients from seed (IDs printed in seed output)
 
-Admin password (optional): value of `ADMIN_PASSWORD` in `.env` (default `admin123`).
-
 ## Docker
 
 ```bash
@@ -87,7 +85,6 @@ See `.env.example`:
 |----------|---------|
 | `DATABASE_URL` | PostgreSQL connection string |
 | `PATIENT_ID_PREFIX` | Clinic code for Patient IDs (default `ARJ`) |
-| `ADMIN_PASSWORD` | Optional admin gate |
 | `NEXT_PUBLIC_APP_URL` | Public base URL |
 
 ## Growth references (versioned)
@@ -122,7 +119,6 @@ Z-scores use the official LMS method; percentiles use the normal CDF.
 | GET | `/api/patients/[patientId]/charts` | Chart payloads |
 | GET | `/api/patients/[patientId]/export/pdf` | PDF report |
 | GET | `/api/patients/[patientId]/export/csv` | CSV export |
-| POST/DELETE | `/api/auth/admin` | Admin login / logout |
 | GET | `/api/health` | Health check |
 
 ## Project structure
@@ -145,7 +141,7 @@ legacy/                # Previous static HTML portfolio
 ## Vercel deployment
 
 1. Create a managed Postgres (Neon, Supabase, Vercel Postgres).
-2. Set `DATABASE_URL`, `ADMIN_PASSWORD`, `PATIENT_ID_PREFIX`, `NEXT_PUBLIC_APP_URL`.
+2. Set `DATABASE_URL`, `PATIENT_ID_PREFIX`, `NEXT_PUBLIC_APP_URL`.
 3. Build command: `prisma generate && prisma migrate deploy && next build`
 4. Run seed once against production DB: `npm run db:seed`
 

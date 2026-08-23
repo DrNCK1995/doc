@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
-import { useGrowthAuth } from "@/components/growth/access-gate";
 
 type FormState = {
   name: string;
@@ -60,23 +59,11 @@ function requiredNumber(value: string): number {
 
 export function RegisterForm() {
   const router = useRouter();
-  const { auth } = useGrowthAuth();
-  const parentMobile =
-    auth?.authenticated && auth.role === "parent" ? auth.mobile : null;
   const [form, setForm] = React.useState<FormState>(initial);
   const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>(
     {},
   );
   const [submitting, setSubmitting] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!parentMobile) return;
-    setForm((prev) =>
-      prev.mobileNumber === parentMobile
-        ? prev
-        : { ...prev, mobileNumber: parentMobile },
-    );
-  }, [parentMobile]);
 
   const liveAge = React.useMemo(() => {
     if (!form.dateOfBirth) return null;
@@ -108,7 +95,7 @@ export function RegisterForm() {
       weightKg: requiredNumber(form.weightKg),
       heightCm: requiredNumber(form.heightCm),
       headCircumferenceCm: optionalNumber(form.headCircumferenceCm),
-      mobileNumber: parentMobile ?? form.mobileNumber,
+      mobileNumber: form.mobileNumber,
       parentName: form.parentName,
       email: form.email.trim() || undefined,
       address: form.address.trim() || null,
@@ -300,14 +287,7 @@ export function RegisterForm() {
             }
             placeholder="10-digit Indian mobile"
             required
-            disabled={Boolean(parentMobile)}
-            readOnly={Boolean(parentMobile)}
           />
-          {parentMobile ? (
-            <p className="text-xs text-muted-foreground">
-              Locked to your OTP-verified mobile.
-            </p>
-          ) : null}
         </Field>
 
         <Field label="Email (optional)" error={fieldErrors.email} htmlFor="email">

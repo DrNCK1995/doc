@@ -5,7 +5,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AccessGate } from "@/components/growth/access-gate";
 import { SearchPanel } from "@/components/growth/search-panel";
 
 export default function SearchPage() {
@@ -14,24 +13,20 @@ export default function SearchPage() {
       <div>
         <h1 className="font-display text-3xl font-semibold">Find patient</h1>
         <p className="mt-2 text-muted-foreground">
-          Parents: verify mobile with OTP to see only your children. Staff: use
-          password login for full clinic search.
+          Search by name, mobile number, date of birth, or patient ID.
         </p>
       </div>
-      <AccessGate title="Verify mobile to search records">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Search</CardTitle>
-            <CardDescription>
-              After OTP, results are limited to children registered on your
-              mobile. Staff can search the full clinic list.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SearchPanel />
-          </CardContent>
-        </Card>
-      </AccessGate>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Search</CardTitle>
+          <CardDescription>
+            Open a child’s growth dashboard from the results below.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SearchPanel />
+        </CardContent>
+      </Card>
     </div>
   );
 }

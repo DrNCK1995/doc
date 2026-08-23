@@ -6,7 +6,6 @@ import {
   UserPlus,
   CalendarClock,
 } from "lucide-react";
-import { AccessGate } from "@/components/growth/access-gate";
 import { SearchPanel } from "@/components/growth/search-panel";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,9 +27,8 @@ export default function GrowthHomePage() {
           Monitor growth with WHO & IAP charts
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Parents open records with a mobile OTP. Clinic staff use password
-          login for full search and follow-up visits. Phone number alone is not
-          enough to download reports.
+          Register a child, search records, plot WHO / IAP charts, and export
+          clinical reports — open access, no sign-in required.
         </p>
       </div>
 
@@ -53,14 +51,11 @@ export default function GrowthHomePage() {
         <CardHeader>
           <CardTitle className="text-xl">Quick patient search</CardTitle>
           <CardDescription>
-            Verify OTP (parents) or staff login, then search and open the
-            dashboard.
+            Search by name, mobile, or patient ID and open the dashboard.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <AccessGate title="Verify to search your child’s records">
-            <SearchPanel compact />
-          </AccessGate>
+          <SearchPanel compact />
         </CardContent>
       </Card>
 
@@ -74,12 +69,12 @@ export default function GrowthHomePage() {
           {
             icon: FileDown,
             title: "PDF & CSV export",
-            body: "Download visit history and printable growth summaries after OTP or staff login.",
+            body: "Download visit history and printable growth summaries from any record.",
           },
           {
             icon: CalendarClock,
             title: "Follow-up ready",
-            body: "Track due visits and growth signals. Staff add clinical follow-up visits.",
+            body: "Track due visits and growth signals, and add clinical follow-up visits.",
           },
         ].map((item) => (
           <div key={item.title} className="space-y-2 border-t border-border pt-4">
