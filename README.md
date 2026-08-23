@@ -140,10 +140,22 @@ legacy/                # Previous static HTML portfolio
 
 ## Vercel deployment
 
-1. Create a managed Postgres (Neon, Supabase, Vercel Postgres).
-2. Set `DATABASE_URL`, `PATIENT_ID_PREFIX`, `NEXT_PUBLIC_APP_URL`.
-3. Build command: `prisma generate && prisma migrate deploy && next build`
-4. Run seed once against production DB: `npm run db:seed`
+Growth monitoring already uses **Prisma + PostgreSQL** (`Patient`, `Visit`, `GrowthMeasurement`). Production needs a managed database:
+
+1. Install **Neon Postgres** on Vercel (Marketplace → Neon → Install → link to project `doc`).  
+   Or create a free DB at [console.neon.tech](https://console.neon.tech) and copy connection strings.
+2. In Vercel → Project `doc` → Settings → Environment Variables, set for **Production**:
+   - `DATABASE_URL` — pooled URL (`…-pooler…`, `?sslmode=require`)
+   - `DIRECT_URL` — direct URL (no `-pooler`, for migrations)
+   - `PATIENT_ID_PREFIX` (e.g. `ARJ`)
+   - `NEXT_PUBLIC_APP_URL` (e.g. `https://doc-dr-nck.vercel.app` or your custom domain)
+3. Build command (already in `package.json`):  
+   `prisma generate && prisma migrate deploy && next build`
+4. Redeploy the project, then seed LMS charts once:  
+   `DATABASE_URL=… DIRECT_URL=… npm run db:seed`
+5. Confirm: `https://your-host/api/health` returns `"status":"ok"`.
+
+Without `DATABASE_URL`, the site loads but Growth Monitor APIs return database unavailable.
 
 ## Screenshots / demo flow
 

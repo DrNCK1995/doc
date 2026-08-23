@@ -7,6 +7,8 @@ export async function GET() {
     return NextResponse.json({
       status: "ok",
       service: "growth-monitor",
+      database: "connected",
+      storage: "prisma-postgresql",
       timestamp: new Date().toISOString(),
     });
   } catch (err) {

@@ -28,7 +28,8 @@ export default function GrowthHomePage() {
         </h1>
         <p className="mt-3 text-muted-foreground">
           Register a child, search records, plot WHO / IAP charts, and export
-          clinical reports — open access, no sign-in required.
+          clinical reports. Records are stored in the clinic database (Prisma /
+          PostgreSQL) — no sign-in required.
         </p>
       </div>
 
