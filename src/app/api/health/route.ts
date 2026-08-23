@@ -2,7 +2,24 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 
 function dbHost(): string | null {
-  const url = process.env.DATABASE_URL;
+  const env = process.env;
+  const candidates = [
+    env.POSTGRES_PRISMA_URL,
+    env.POSTGRES_URL,
+    env.DATABASE_URL,
+    ...Object.entries(env)
+      .filter(
+        ([k, v]) =>
+          Boolean(v) &&
+          (k.endsWith("_POSTGRES_PRISMA_URL") ||
+            k.endsWith("_POSTGRES_URL") ||
+            k.endsWith("_DATABASE_URL")),
+      )
+      .map(([, v]) => v as string),
+  ].filter(Boolean) as string[];
+  const url =
+    candidates.find((u) => !/127\.0\.0\.1|localhost/.test(u)) ??
+    candidates[0];
   if (!url) return null;
   try {
     return new URL(url.replace(/^postgres(ql)?:/i, "https:")).hostname;

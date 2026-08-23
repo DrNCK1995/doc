@@ -1,7 +1,6 @@
 /**
  * Vercel build with Neon / Prisma Postgres.
- * Prefers cloud connection strings over leftover localhost DATABASE_URL.
- * Prefer Neon, then Prisma Postgres marketplace vars, then DATABASE_URL.
+ * Supports prefixed marketplace vars (e.g. DRNCK1995_DATABASE_URL, DRCAREFORKIDS_DATABASE_URL).
  */
 const { spawnSync } = require("child_process");
 
@@ -23,64 +22,65 @@ function firstCloud(urls) {
   return urls.filter(Boolean).find((u) => !isLocalUrl(u));
 }
 
-const present = [
-  "DATABASE_URL",
-  "DATABASE_URL_UNPOOLED",
-  "DIRECT_URL",
-  "POSTGRES_URL",
-  "POSTGRES_PRISMA_URL",
-  "POSTGRES_URL_NON_POOLING",
-  "POSTGRES_URL_NO_SSL",
-  "NEON_DATABASE_URL",
-  "PRISMA_DATABASE_URL",
-].filter((k) => Boolean(env[k]));
-
-console.log("DB-related env keys present:", present.length ? present.join(", ") : "(none)");
-
-// Prefer pooled cloud URLs for the app
-const pooled = firstCloud([
-  env.POSTGRES_PRISMA_URL, // Neon Prisma-optimized
-  env.POSTGRES_URL,
-  env.DATABASE_URL,
-]);
-
-// Prefer direct/unpooled for migrations
-const direct = firstCloud([
-  env.DATABASE_URL_UNPOOLED,
-  env.POSTGRES_URL_NON_POOLING,
-  env.DIRECT_URL,
-  env.POSTGRES_PRISMA_URL,
-  env.POSTGRES_URL,
-  env.DATABASE_URL,
-]);
-
-if (!pooled && !direct) {
-  console.error(
-    [
-      "No cloud DATABASE_URL found on this Vercel build.",
-      "Open: https://vercel.com/dr-nck/doc/settings/environment-variables",
-      "1) DELETE DATABASE_URL if it contains 127.0.0.1 or localhost",
-      "2) Storage → keep ONE of Neon or Prisma Postgres → Connect to project doc (Production)",
-      "3) Redeploy",
-    ].join("\n"),
-  );
-  process.exit(1);
+/** Collect values for a suffix across plain + prefixed marketplace keys. */
+function collectBySuffix(suffix) {
+  const out = [];
+  if (env[suffix]) out.push(env[suffix]);
+  for (const key of Object.keys(env)) {
+    if (key.endsWith(`_${suffix}`) || key.endsWith(suffix)) {
+      out.push(env[key]);
+    }
+  }
+  // Prefer neon/prisma-looking prefixed keys first when choosing later
+  return out;
 }
 
-if (!pooled || isLocalUrl(pooled)) {
+const present = Object.keys(env)
+  .filter(
+    (k) =>
+      k === "DATABASE_URL" ||
+      k.includes("DATABASE_URL") ||
+      k.includes("POSTGRES") ||
+      k.includes("DIRECT_URL") ||
+      k.includes("PGHOST") ||
+      k.includes("PRISMA_DATABASE"),
+  )
+  .sort();
+
+console.log(
+  "DB-related env keys present:",
+  present.length ? present.join(", ") : "(none)",
+);
+
+const pooled = firstCloud([
+  ...collectBySuffix("POSTGRES_PRISMA_URL"),
+  ...collectBySuffix("POSTGRES_URL"),
+  ...collectBySuffix("DATABASE_URL"),
+  ...collectBySuffix("PRISMA_DATABASE_URL"),
+]);
+
+const direct = firstCloud([
+  ...collectBySuffix("DATABASE_URL_UNPOOLED"),
+  ...collectBySuffix("POSTGRES_URL_NON_POOLING"),
+  ...collectBySuffix("DIRECT_URL"),
+  ...collectBySuffix("POSTGRES_PRISMA_URL"),
+  ...collectBySuffix("POSTGRES_URL"),
+  ...collectBySuffix("DATABASE_URL"),
+]);
+
+if (!pooled) {
   console.error(
     [
-      "DATABASE_URL is still localhost. Marketplace DBs cannot override a manual localhost value.",
-      "Delete the localhost DATABASE_URL in Vercel Environment Variables, then reconnect Storage.",
-      "Host seen:",
-      hostOf(env.DATABASE_URL) || "(empty)",
+      "No cloud database URL found.",
+      "Delete the old Sensitive DATABASE_URL if it is localhost,",
+      "then either reconnect Neon without a custom prefix, or keep DRNCK1995_DATABASE_URL and redeploy this build.",
     ].join("\n"),
   );
   process.exit(1);
 }
 
 env.DATABASE_URL = pooled;
-const migrateUrl = direct && !isLocalUrl(direct) ? direct : pooled;
+const migrateUrl = direct || pooled;
 
 console.log("App DATABASE_URL host:", hostOf(pooled));
 console.log("Migrate host:", hostOf(migrateUrl));
@@ -96,6 +96,5 @@ function run(command, args, extraEnv = {}) {
 }
 
 run("npx", ["prisma", "generate"]);
-// Migrations need a direct connection when using poolers
 run("npx", ["prisma", "migrate", "deploy"], { DATABASE_URL: migrateUrl });
 run("npx", ["next", "build"]);
