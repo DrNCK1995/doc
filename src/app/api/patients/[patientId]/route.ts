@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
+import {
+  getAccess,
+  parentCannotAccessOtherMobile,
+  requireAccess,
+} from "@/lib/auth/access";
 import { updatePatientSchema } from "@/lib/validations/patient";
 import {
   getByPatientId,
@@ -17,12 +22,19 @@ function clientIp(req: NextRequest): string | undefined {
   );
 }
 
-export async function GET(_req: NextRequest, context: RouteContext) {
+export async function GET(req: NextRequest, context: RouteContext) {
+  const access = await getAccess(req);
+  const denied = requireAccess(access);
+  if (denied) return denied;
+
   try {
     const { patientId } = await context.params;
     const patient = await getByPatientId(patientId);
     if (!patient) {
       return NextResponse.json({ error: "Patient not found" }, { status: 404 });
+    }
+    if (parentCannotAccessOtherMobile(access!, patient.mobileNumber)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
     return NextResponse.json({ patient });
   } catch (err) {
@@ -31,15 +43,28 @@ export async function GET(_req: NextRequest, context: RouteContext) {
 }
 
 export async function PATCH(req: NextRequest, context: RouteContext) {
+  const access = await getAccess(req);
+  const denied = requireAccess(access);
+  if (denied) return denied;
+
   try {
     const { patientId } = await context.params;
     const existing = await getByPatientId(patientId);
     if (!existing) {
       return NextResponse.json({ error: "Patient not found" }, { status: 404 });
     }
+    if (parentCannotAccessOtherMobile(access!, existing.mobileNumber)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     const body = await req.json();
     const parsed = updatePatientSchema.parse(body);
+
+    if (access!.role === "parent") {
+      // Parents cannot reassign the record to another mobile.
+      parsed.mobileNumber = access!.mobile;
+    }
+
     const patient = await updatePatient(patientId, parsed, {
       ipAddress: clientIp(req),
     });

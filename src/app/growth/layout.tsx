@@ -13,12 +13,8 @@ const links = [
   { href: "/growth", label: "Growth Tracker" },
   { href: "/growth/register", label: "Register" },
   { href: "/growth/search", label: "Search" },
-  { href: "/vaccination", label: "Vaccine Buddy" },
-  { href: "/screening", label: "Milestone Check" },
-  { href: "/nutrition", label: "Food for Growth" },
-  { href: "/dosage", label: "Dose Check" },
-  { href: "/learn", label: "Parenting Hub" },
   { href: "/my-child", label: "My Child" },
+  { href: "/growth/login", label: "Sign in" },
 ];
 
 export default function GrowthLayout({

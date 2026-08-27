@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
+import {
+  getAccess,
+  parentCannotAccessOtherMobile,
+  requireAccess,
+} from "@/lib/auth/access";
 import { addVisitSchema } from "@/lib/validations/visit";
 import { getByPatientId } from "@/lib/services/patient-service";
 import { addVisit, getAlerts, listVisits } from "@/lib/services/visit-service";
@@ -15,13 +20,37 @@ function clientIp(req: NextRequest): string | undefined {
   );
 }
 
+async function assertCanAccessPatient(
+  req: NextRequest,
+  humanPatientId: string,
+) {
+  const access = await getAccess(req);
+  const denied = requireAccess(access);
+  if (denied) return { denied, access: null, patient: null };
+
+  const patient = await getByPatientId(humanPatientId);
+  if (!patient) {
+    return {
+      denied: NextResponse.json({ error: "Patient not found" }, { status: 404 }),
+      access,
+      patient: null,
+    };
+  }
+  if (parentCannotAccessOtherMobile(access!, patient.mobileNumber)) {
+    return {
+      denied: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+      access,
+      patient: null,
+    };
+  }
+  return { denied: null, access, patient };
+}
+
 export async function GET(req: NextRequest, context: RouteContext) {
   try {
     const { patientId } = await context.params;
-    const patient = await getByPatientId(patientId);
-    if (!patient) {
-      return NextResponse.json({ error: "Patient not found" }, { status: 404 });
-    }
+    const gate = await assertCanAccessPatient(req, patientId);
+    if (gate.denied) return gate.denied;
 
     const includeAlerts = req.nextUrl.searchParams.get("alerts") === "1";
     const visits = await listVisits(patientId);
@@ -41,9 +70,15 @@ export async function GET(req: NextRequest, context: RouteContext) {
 export async function POST(req: NextRequest, context: RouteContext) {
   try {
     const { patientId } = await context.params;
-    const patient = await getByPatientId(patientId);
-    if (!patient) {
-      return NextResponse.json({ error: "Patient not found" }, { status: 404 });
+    const gate = await assertCanAccessPatient(req, patientId);
+    if (gate.denied) return gate.denied;
+
+    // Clinical follow-up visits stay staff-only.
+    if (gate.access!.role !== "staff") {
+      return NextResponse.json(
+        { error: "Only clinic staff can add follow-up visits" },
+        { status: 403 },
+      );
     }
 
     const body = await req.json();
