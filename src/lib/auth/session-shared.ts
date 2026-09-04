@@ -1,4 +1,7 @@
-import { ADMIN_SESSION_PAYLOAD } from "@/lib/auth/admin-credentials";
+import {
+  ADMIN_SESSION_PAYLOAD,
+  adminPassword as configuredAdminPassword,
+} from "@/lib/auth/admin-credentials";
 
 export const ADMIN_COOKIE_NAME = "admin_session";
 export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 12; // 12 hours
@@ -32,9 +35,9 @@ export async function hmacSha256Hex(
 }
 
 export async function mintAdminSessionToken(
-  password = process.env.ADMIN_PASSWORD,
+  password?: string,
 ): Promise<string | null> {
-  const secret = password?.trim();
+  const secret = (password ?? configuredAdminPassword()).trim();
   if (!secret) return null;
   const hex = await hmacSha256Hex(secret, ADMIN_SESSION_PAYLOAD);
   return `admin.${hex}`;
@@ -42,10 +45,10 @@ export async function mintAdminSessionToken(
 
 export async function isValidAdminTokenAsync(
   token: string | undefined,
-  adminPassword = process.env.ADMIN_PASSWORD,
+  password?: string,
 ): Promise<boolean> {
   if (!token) return false;
-  const expected = await mintAdminSessionToken(adminPassword);
+  const expected = await mintAdminSessionToken(password);
   if (!expected) return false;
   return safeEqualHex(token, expected);
 }

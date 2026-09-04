@@ -1,6 +1,6 @@
-/** Clinic admin identity — set in env (never hardcode secrets in commits for production). */
-export const DEFAULT_ADMIN_LOGIN_ID = "drcare-admin";
-export const DEFAULT_ADMIN_PASSWORD = "NCK@CareKids2026";
+/** Clinic admin identity — override with ADMIN_LOGIN_ID / ADMIN_PASSWORD in env. */
+export const DEFAULT_ADMIN_LOGIN_ID = "DrNCK1995";
+export const DEFAULT_ADMIN_PASSWORD = "CARE@kids2026";
 
 export const ADMIN_SESSION_PAYLOAD = "admin-session-v2";
 
