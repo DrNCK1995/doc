@@ -5,17 +5,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Button } from "@/components/ui/button";
 import { BRAND_NAME } from "@/lib/site-nav";
 import { cn } from "@/lib/utils/cn";
 
-const links = [
+const baseLinks = [
   { href: "/growth", label: "Growth Tracker" },
   { href: "/growth/register", label: "Register" },
   { href: "/growth/search", label: "Search" },
   { href: "/my-child", label: "My Child" },
-  { href: "/growth/login", label: "Sign in" },
 ];
+
+type AuthMe =
+  | { authenticated: false }
+  | { authenticated: true; role: string; userId?: string; mobile?: string };
 
 export default function GrowthLayout({
   children,
@@ -24,6 +28,35 @@ export default function GrowthLayout({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
+  const [auth, setAuth] = React.useState<AuthMe | null>(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        const data = (await res.json()) as AuthMe;
+        if (!cancelled) setAuth(data);
+      } catch {
+        if (!cancelled) setAuth({ authenticated: false });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
+
+  const signedIn = Boolean(auth?.authenticated);
+  const isLoginPage = pathname.startsWith("/growth/login");
+
+  const links = signedIn
+    ? [
+        ...baseLinks,
+        ...(auth && "role" in auth && auth.role === "admin"
+          ? [{ href: "/admin/parents", label: "Admin parents" }]
+          : []),
+      ]
+    : [...baseLinks, { href: "/growth/login", label: "Sign in" }];
 
   return (
     <div className="min-h-screen">
@@ -64,7 +97,19 @@ export default function GrowthLayout({
             </nav>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
+            {signedIn && !isLoginPage ? (
+              <div className="hidden items-center gap-2 sm:flex">
+                {auth && "userId" in auth && auth.userId ? (
+                  <span className="max-w-[10rem] truncate text-xs text-muted-foreground">
+                    {auth.userId}
+                  </span>
+                ) : auth && "role" in auth && auth.role === "admin" ? (
+                  <span className="text-xs text-muted-foreground">Admin</span>
+                ) : null}
+                <SignOutButton />
+              </div>
+            ) : null}
             <ThemeToggle />
             <Button
               variant="ghost"
@@ -90,6 +135,11 @@ export default function GrowthLayout({
                 {link.label}
               </Link>
             ))}
+            {signedIn && !isLoginPage ? (
+              <div className="mt-2 px-3">
+                <SignOutButton className="w-full" />
+              </div>
+            ) : null}
           </nav>
         ) : null}
       </header>

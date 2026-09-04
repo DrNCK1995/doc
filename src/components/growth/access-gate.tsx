@@ -251,12 +251,10 @@ export function useGrowthAuth() {
   }, [refresh]);
 
   async function logout() {
-    const role = auth && auth.authenticated ? auth.role : null;
-    if (role === "staff" || role === "admin") {
-      await fetch("/api/auth/admin", { method: "DELETE" });
-    } else {
-      await fetch("/api/auth/parent", { method: "DELETE" });
-    }
+    await Promise.all([
+      fetch("/api/auth/parent", { method: "DELETE" }),
+      fetch("/api/auth/admin", { method: "DELETE" }),
+    ]);
     await refresh();
   }
 

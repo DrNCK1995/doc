@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Button } from "@/components/ui/button";
 
 type PatientRow = {
@@ -74,12 +75,6 @@ export default function AdminParentsPage() {
     void load();
   }, [load]);
 
-  async function logout() {
-    await fetch("/api/auth/admin", { method: "DELETE" });
-    router.replace("/growth/login");
-    router.refresh();
-  }
-
   return (
     <div className="mx-auto max-w-4xl space-y-8 py-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -102,9 +97,7 @@ export default function AdminParentsPage() {
           <Button type="button" variant="outline" size="sm" onClick={() => void load()}>
             Refresh
           </Button>
-          <Button type="button" variant="ghost" size="sm" onClick={() => void logout()}>
-            Sign out
-          </Button>
+          <SignOutButton variant="ghost" />
         </div>
       </div>
 

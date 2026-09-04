@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/layout/header";
 import { SiteFooter } from "@/components/layout/footer";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,9 +65,12 @@ export default function MyChildPage() {
       <main className="pt-16">
         <section className="section-pad">
           <div className="container-page max-w-3xl">
-            <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-              My Child
-            </h1>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+                My Child
+              </h1>
+              <SignOutButton />
+            </div>
             <p className="mt-3 text-muted-foreground sm:text-lg">
               Age-based guidance for vaccines, growth, feeding, and when to seek
               care — linked to Grow Right registration when you&apos;re ready.

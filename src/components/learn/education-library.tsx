@@ -51,8 +51,8 @@ const COPY = {
     te: "సాధారణ సమస్యలు & ప్రశ్నోత్తరాలు",
   },
   faqsLead: {
-    en: "Fever, vaccines, sleep, nutrition, Type 1 diabetes, and hypothyroidism — short answers for busy parents. Education only, not a personal diagnosis.",
-    te: "జ్వరం, టీకాలు, నిద్ర, పోషణ, టైప్ 1 డయాబెటిస్, హైపోథైరాయిడిజం — తల్లిదండ్రులకు చిన్న సమాధానాలు. విద్య మాత్రమే, వ్యక్తిగత రోగ నిర్ధారణ కాదు.",
+    en: "Fever, vaccines, private vaccines, newborn screening, junk food & biscuits, sleep, nutrition, Type 1 diabetes, and hypothyroidism — short answers for busy parents. Education only, not a personal diagnosis.",
+    te: "జ్వరం, టీకాలు, ప్రైవేట్ టీకాలు, నవజాత స్క్రీనింగ్, జంక్ ఫుడ్ & బిస్కెట్లు, నిద్ర, పోషణ, టైప్ 1 డయాబెటిస్, హైపోథైరాయిడిజం — తల్లిదండ్రులకు చిన్న సమాధానాలు. విద్య మాత్రమే, వ్యక్తిగత రోగ నిర్ధారణ కాదు.",
   },
 };
 

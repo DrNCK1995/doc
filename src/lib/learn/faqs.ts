@@ -262,6 +262,198 @@ export const PARENT_FAQ_SECTIONS: FaqSection[] = [
     ],
   },
   {
+    id: "junk-food",
+    emoji: "🍪",
+    title: {
+      en: "Junk food & biscuits — FAQs",
+      te: "జంక్ ఫుడ్ & బిస్కెట్లు — ప్రశ్నోత్తరాలు",
+    },
+    intro: {
+      en: "Occasional treats are fine. Daily biscuits, chips, sweets, and sugary drinks crowd out real food and raise dental and weight risks.",
+      te: "అప్పుడప్పుడు ట్రీట్ సరే. రోజూ బిస్కెట్, చిప్స్, మిఠాయి, చక్కెర డ్రింక్స్ నిజమైన ఆహారాన్ని తగ్గిస్తాయి — పళ్లు, బరువు ప్రమాదం పెరుగుతుంది.",
+    },
+    items: [
+      {
+        q: {
+          en: "Are biscuits okay as a daily snack?",
+          te: "రోజూ బిస్కెట్ స్నాక్‌గా సరేనా?",
+        },
+        a: {
+          en: "Not as the main daily snack. Most biscuits are high in sugar, refined flour, and salt/fat with little protein or fibre. Prefer fruit, curd, roasted chana, idli, dosa pieces, milk, or a homemade sandwich. Keep biscuits for rare occasions, not every tea time.",
+          te: "ప్రధాన రోజువారీ స్నాక్‌గా కాదు. చాలా బిస్కెట్లలో చక్కెర, మైదా, ఉప్పు/కొవ్వు ఎక్కువ — ప్రోటీన్, ఫైబర్ తక్కువ. పండు, పెరుగు, వేయించిన శనగ, ఇడ్లీ, దోస ముక్కలు, పాలు, ఇంటి సాండ్‌విచ్ ఇవ్వండి. బిస్కెట్ అప్పుడప్పుడే.",
+        },
+      },
+      {
+        q: {
+          en: "What counts as junk food for children?",
+          te: "పిల్లలకు జంక్ ఫుడ్ అంటే ఏమిటి?",
+        },
+        a: {
+          en: "Packaged chips, namkeen, soft drinks, energy drinks, candy, deep-fried street snacks often, instant noodles as a regular meal, and many “kids” biscuits or cream wafers. Fast food once in a while is different from daily habit.",
+          te: "ప్యాకెట్ చిప్స్, నమ్కీన్, సాఫ్ట్ డ్రింక్స్, ఎనర్జీ డ్రింక్స్, మిఠాయి, తరచు వేపుడు స్ట్రీట్ ఫుడ్, రోజూ ఇన్‌స్టంట్ నూడుల్స్, చాలా క్రీమ్ బిస్కెట్లు. అప్పుడప్పుడు ఫాస్ట్ ఫుడ్ — రోజువారీ అలవాటు కాదు.",
+        },
+      },
+      {
+        q: {
+          en: "My child asks for biscuits every evening — what can I do?",
+          te: "పిల్ల ప్రతి సాయంత్రం బిస్కెట్ అడిగితే?",
+        },
+        a: {
+          en: "Offer a fixed healthy snack at the same time so hunger is met before craving. Do not use biscuits as a reward or to stop crying. Keep junk out of easy reach at home; adults modelling the same habit helps most.",
+          te: "ఆకలి తీరేలా అదే సమయంలో ఆరోగ్యకరమైన స్నాక్ ఇవ్వండి. ఏడుపు ఆపడానికి లేదా రివార్డ్‌గా బిస్కెట్ వాడవద్దు. ఇంట్లో జంక్ చేతికి దూరంగా ఉంచండి; పెద్దలు కూడా అదే అలవాటు పాటిస్తే సులభం.",
+        },
+      },
+      {
+        q: {
+          en: "When can junk food start harming health?",
+          te: "జంక్ ఫుడ్ ఎప్పుడు హాని చేస్తుంది?",
+        },
+        a: {
+          en: "Daily sugar and fried snacks raise tooth decay, constipation, poor appetite for meals, and later overweight / early lifestyle disease risk. If growth is too fast or too slow, plot weight and ask your paediatrician — see Food for Growth.",
+          te: "రోజూ చక్కెర, వేపుడు స్నాక్స్ — పళ్లు క్షయం, మలబద్ధకం, భోజనం ఆకలి తగ్గడం, తర్వాత బరువు / జీవనశైలి వ్యాధుల ప్రమాదం. వృద్ధి చాలా వేగం లేదా నెమ్మది అయితే చార్ట్ చూపించి డాక్టర్‌ను అడగండి — Food for Growth చూడండి.",
+        },
+      },
+      {
+        q: {
+          en: "Are “sugar-free” or “multigrain” biscuits better?",
+          te: "“షుగర్-ఫ్రీ” / “మల్టీగ్రెయిన్” బిస్కెట్లు మెరుగా?",
+        },
+        a: {
+          en: "Often still ultra-processed and easy to overeat. Read labels — many remain high in refined carbs and fat. Whole foods beat marketing claims. For toddlers under 2, avoid routine sweet biscuits and sugary drinks.",
+          te: "చాలా సార్లు ఇంకా అతి-ప్రాసెస్డ్, ఎక్కువ తినే అవకాశం. లేబుల్ చదవండి — మైదా, కొవ్వు ఎక్కువ ఉండవచ్చు. మార్కెటింగ్ కంటే ఇంటి ఆహారం మేలు. 2 ఏళ్ల లోపు రోజువారీ తీపి బిస్కెట్, చక్కెర డ్రింక్స్ వద్దు.",
+        },
+      },
+    ],
+  },
+  {
+    id: "newborn-screening",
+    emoji: "🧪",
+    title: {
+      en: "Newborn screening tests — FAQs",
+      te: "నవజాత స్క్రీనింగ్ పరీక్షలు — ప్రశ్నోత్తరాలు",
+    },
+    intro: {
+      en: "A few drops of blood (and sometimes hearing / heart checks) can catch treatable conditions before symptoms appear.",
+      te: "కొన్ని చుక్కల రక్తం (కొన్నిసార్లు వినికిడి / గుండె పరీక్షలు) — లక్షణాలు రాకముందే చికిత్స చేయదగిన సమస్యలను గుర్తిస్తాయి.",
+    },
+    items: [
+      {
+        q: {
+          en: "What is newborn screening?",
+          te: "నవజాత స్క్రీనింగ్ అంటే ఏమిటి?",
+        },
+        a: {
+          en: "Tests done in the first days of life to find serious but treatable conditions early — for example thyroid problems, some metabolic diseases, hearing loss, and critical heart defects (pulse oximetry). Timing and the exact panel vary by hospital and state.",
+          te: "పుట్టిన మొదటి రోజుల్లో చేసే పరీక్షలు — థైరాయిడ్, కొన్ని మెటబాలిక్ వ్యాధులు, వినికిడి లోపం, తీవ్ర గుండె లోపాలు (పల్స్ ఆక్సిమెట్రీ) వంటివి ముందుగా కనుగొనడానికి. ఏ ప్యానల్, ఎప్పుడు అనేది ఆసుపత్రి / రాష్ట్రం మీద ఆధారపడి ఉంటుంది.",
+        },
+      },
+      {
+        q: {
+          en: "Which tests are commonly offered?",
+          te: "సాధారణంగా ఏ పరీక్షలు చేస్తారు?",
+        },
+        a: {
+          en: "Often: TSH (thyroid), hearing screen (OAE / AABR), and pulse oximetry for heart. Expanded dried-blood-spot panels may include metabolic / genetic disorders (e.g. G6PD, CAH, amino-acid disorders) — ask your paediatrician what your birth centre offers and whether private expanded screening is useful for your family.",
+          te: "తరచూ: TSH (థైరాయిడ్), వినికిడి (OAE/AABR), గుండెకు పల్స్ ఆక్సిమెట్రీ. విస్తృత బ్లడ్-స్పాట్ ప్యానల్‌లో మెటబాలిక్ / జన్యు సమస్యలు (G6PD, CAH మొదలైనవి) ఉండవచ్చు — మీ ఆసుపత్రిలో ఏమి ఉంది, ప్రైవేట్ విస్తృత స్క్రీనింగ్ అవసరమా అని డాక్టర్‌ను అడగండి.",
+        },
+      },
+      {
+        q: {
+          en: "When is the blood sample taken?",
+          te: "రక్త నమూనా ఎప్పుడు తీస్తారు?",
+        },
+        a: {
+          en: "Usually after 24–48 hours of age (or as per protocol) so hormone levels are reliable. Preterm or sick babies may need repeat testing. If you go home early, ask how and when to complete screening.",
+          te: "సాధారణంగా 24–48 గంటల తర్వాత (ప్రోటోకాల్ ప్రకారం) — హార్మోన్ స్థాయిలు నమ్మదగినవి. ప్రీమెచ్యూర్ / అనారోగ్య పాపలకు మళ్లీ పరీక్ష కావచ్చు. త్వరగా డిశ్చార్జ్ అయితే స్క్రీనింగ్ ఎలా పూర్తి చేయాలో అడగండి.",
+        },
+      },
+      {
+        q: {
+          en: "What if a result is “positive” or “abnormal”?",
+          te: "ఫలితం “పాజిటివ్” / అసాధారణమైతే?",
+        },
+        a: {
+          en: "Screening is not a final diagnosis. Many first positives are false alarms or need a confirmatory blood test. Follow up quickly — do not wait for symptoms. Early treatment (e.g. thyroxine for congenital hypothyroidism) protects the brain and growth.",
+          te: "స్క్రీనింగ్ అంతిమ రోగ నిర్ధారణ కాదు. చాలా మొదటి పాజిటివ్‌లు తప్పుడు అలారం లేదా నిర్ధారణ పరీక్ష అవసరం. లక్షణాలు కోసం ఆగకుండా త్వరగా ఫాలో-అప్ చేయండి. ముందస్తు చికిత్స (ఉదా. జన్మతః హైపోథైరాయిడ్‌కు థైరాక్సిన్) మెదడు, వృద్ధిని కాపాడుతుంది.",
+        },
+      },
+      {
+        q: {
+          en: "Is newborn screening mandatory? Does it hurt?",
+          te: "స్క్రీనింగ్ తప్పనిసరా? నొప్పి ఉంటుందా?",
+        },
+        a: {
+          en: "Availability and policy differ by place; it is strongly recommended wherever offered. A heel prick causes brief discomfort; hearing and pulse checks are painless. Keep your reports for future visits.",
+          te: "విధానం ప్రాంతం మీద ఆధారపడి ఉంటుంది — అందుబాటులో ఉన్న చోట బలంగా సిఫార్సు. మడమ పంక్చర్ కొద్ది సేపు అసౌకర్యం; వినికిడి / పల్స్ పరీక్షలు నొప్పి లేనివి. రిపోర్టులు భద్రపరచండి.",
+        },
+      },
+    ],
+  },
+  {
+    id: "private-vaccines",
+    emoji: "🏥",
+    title: {
+      en: "Private vaccines — FAQs",
+      te: "ప్రైవేట్ టీకాలు — ప్రశ్నోత్తరాలు",
+    },
+    intro: {
+      en: "Government (UIP) vaccines are essential and free. Private / IAP-recommended vaccines add extra protection — discuss cost and timing with your paediatrician.",
+      te: "ప్రభుత్వ (UIP) టీకాలు అవసరం, ఉచితం. ప్రైవేట్ / IAP సిఫార్సు టీకాలు అదనపు రక్షణ — ఖర్చు, సమయం గురించి డాక్టర్‌తో మాట్లాడండి.",
+    },
+    items: [
+      {
+        q: {
+          en: "What are “private vaccines”?",
+          te: "“ప్రైవేట్ టీకాలు” అంటే ఏమిటి?",
+        },
+        a: {
+          en: "Vaccines given in clinics that may not be in the free national schedule at that age, or brand / combination shots parents choose to pay for — for example pneumococcal (PCV), rotavirus, influenza, typhoid, hepatitis A, varicella (chickenpox), meningococcal, HPV, and some combination vaccines. Exact list depends on IAP guidance and your child’s age.",
+          te: "ఆ వయస్సులో ఉచిత జాతీయ షెడ్యూల్‌లో లేని లేదా తల్లిదండ్రులు చెల్లించి తీసుకునే టీకాలు — ఉదా. న్యుమోకాకల్ (PCV), రోటావైరస్, ఇన్‌ఫ్లుఎంజా, టైఫాయిడ్, హెపటైటిస్ A, చికెన్‌పాక్స్ (వారిసెల్లా), మెనింజోకాకల్, HPV, కొన్ని కాంబినేషన్ షాట్లు. జాబితా IAP మార్గదర్శకాలు, వయస్సు మీద ఆధారపడి ఉంటుంది.",
+        },
+      },
+      {
+        q: {
+          en: "Are government vaccines enough?",
+          te: "ప్రభుత్వ టీకాలు చాలా ఉన్నాయా?",
+        },
+        a: {
+          en: "UIP vaccines protect against many life-threatening diseases and must not be skipped. Private vaccines cover additional infections that are common or serious in India. They are optional extras, not a replacement for the government schedule.",
+          te: "UIP టీకాలు అనేక ప్రాణాంతక వ్యాధుల నుంచి కాపాడతాయి — వదలకూడదు. ప్రైవేట్ టీకాలు భారతంలో సాధారణం / తీవ్రమైన అదనపు ఇన్ఫెక్షన్లకు. ఇవి అదనం — ప్రభుత్వ షెడ్యూల్‌కు బదులు కావు.",
+        },
+      },
+      {
+        q: {
+          en: "Which private vaccines are often discussed?",
+          te: "ఏ ప్రైవేట్ టీకాలు తరచూ మాట్లాడతారు?",
+        },
+        a: {
+          en: "Commonly: PCV (pneumonia / meningitis), rotavirus (severe diarrhoea), annual influenza, typhoid, hepatitis A, varicella, and later HPV for cancer prevention. Your paediatrician will prioritise based on age, season, and budget — see Vaccine Buddy for reminders.",
+          te: "సాధారణంగా: PCV (న్యుమోనియా/మెనింజైటిస్), రోటావైరస్ (తీవ్ర విరేచనాలు), వార్షిక ఇన్‌ఫ్లుఎంజా, టైఫాయిడ్, హెపటైటిస్ A, వారిసెల్లా, తర్వాత క్యాన్సర్ నివారణకు HPV. వయస్సు, సీజన్, బడ్జెట్ ప్రకారం డాక్టర్ ప్రాధాన్యత ఇస్తారు — రిమైండర్లకు Vaccine Buddy చూడండి.",
+        },
+      },
+      {
+        q: {
+          en: "Are private vaccines safe? Same day as other shots?",
+          te: "ప్రైవేట్ టీకాలు సేఫ్‌నా? ఇతర షాట్లతో అదే రోజు?",
+        },
+        a: {
+          en: "Yes — when given as per age and schedule they have a strong safety record. Many can be given on the same visit as routine vaccines (different sites). Mild fever or fussiness can occur; serious reactions are rare. Tell the clinic about allergies and past reactions.",
+          te: "అవును — వయస్సు / షెడ్యూల్ ప్రకారం ఇస్తే భద్రత మంచిది. చాలా వాటిని రొటీన్ టీకాలతో అదే సందర్శనలో (వేరు సైట్) ఇవ్వవచ్చు. తేలికపాటి జ్వరం / అలజడి రావచ్చు; తీవ్ర ప్రతిచర్యలు అరుదు. అలెర్జీలు, గత ప్రతిచర్యలు చెప్పండి.",
+        },
+      },
+      {
+        q: {
+          en: "We cannot afford all private vaccines — what then?",
+          te: "అన్ని ప్రైవేట్ టీకాలు ఖర్చు కాకపోతే?",
+        },
+        a: {
+          en: "Never skip UIP / free vaccines. Ask your doctor to prioritise the highest-value private shots for your child’s age and risk (often PCV and rotavirus in infancy). Catch-up is possible later for many vaccines — partial protection is better than none.",
+          te: "UIP / ఉచిత టీకాలు ఎప్పుడూ వదలవద్దు. వయస్సు, ప్రమాదం ప్రకారం అత్యంత ఉపయోగకరమైన ప్రైవేట్ షాట్లకు ప్రాధాన్యత అడగండి (శిశువులో తరచూ PCV, రోటావైరస్). చాలా వాటికి తర్వాత క్యాచ్-అప్ సాధ్యం — కొంత రక్షణ లేకపోవడం కంటే మేలు.",
+        },
+      },
+    ],
+  },
+  {
     id: "t1dm",
     emoji: "🩸",
     title: {

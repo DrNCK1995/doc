@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { BRAND_NAME } from "@/lib/site-nav";
 
 export default function AdminLayout({
@@ -9,7 +12,7 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen">
       <header className="border-b border-border/80 bg-background/90">
-        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
+        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between gap-3 px-4">
           <Link
             href="/"
             className="font-display text-lg font-semibold text-primary"
@@ -29,6 +32,7 @@ export default function AdminLayout({
             >
               Growth
             </Link>
+            <SignOutButton />
           </nav>
         </div>
       </header>
