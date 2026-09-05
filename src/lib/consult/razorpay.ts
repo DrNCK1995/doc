@@ -25,11 +25,12 @@ function getClient(): Razorpay {
 
 export async function createConsultOrder(params: {
   receipt: string;
+  amountPaise?: number;
   notes?: Record<string, string>;
 }): Promise<{ id: string; amount: number; currency: string }> {
   const client = getClient();
   const order = await client.orders.create({
-    amount: CONSULT_FEE_PAISE,
+    amount: params.amountPaise ?? CONSULT_FEE_PAISE,
     currency: "INR",
     receipt: params.receipt.slice(0, 40),
     notes: params.notes,

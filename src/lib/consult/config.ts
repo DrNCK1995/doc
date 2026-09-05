@@ -1,7 +1,24 @@
 /** Clinic consult booking configuration. */
 
-export const CONSULT_FEE_INR = 800;
+/** Instagram followers (@dr.careforkids) pay the discounted fee. */
+export const CONSULT_FEE_FOLLOWER_INR = 300;
+export const CONSULT_FEE_NON_FOLLOWER_INR = 500;
+/** Default / non-follower fee (used in copy when a single amount is shown). */
+export const CONSULT_FEE_INR = CONSULT_FEE_NON_FOLLOWER_INR;
 export const CONSULT_FEE_PAISE = CONSULT_FEE_INR * 100;
+
+export const CONSULT_PAYMENT_LINK = "https://razorpay.me/@drcareforkids";
+
+export function consultFeeInr(instagramFollower: boolean): number {
+  return instagramFollower
+    ? CONSULT_FEE_FOLLOWER_INR
+    : CONSULT_FEE_NON_FOLLOWER_INR;
+}
+
+export function consultFeePaise(instagramFollower: boolean): number {
+  return consultFeeInr(instagramFollower) * 100;
+}
+
 export const SLOT_HOLD_MINUTES = 15;
 export const BOOKING_HORIZON_DAYS = 14;
 

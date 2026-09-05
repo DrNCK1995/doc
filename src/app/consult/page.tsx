@@ -8,12 +8,16 @@ import {
   DOCTOR_PHOTO_SRC,
 } from "@/lib/constants";
 import { DOCTOR_NAME, DOCTOR_TITLE, BRAND_TRUST } from "@/lib/site-nav";
-import { CONSULT_FEE_INR } from "@/lib/consult/config";
+import {
+  CONSULT_FEE_FOLLOWER_INR,
+  CONSULT_FEE_NON_FOLLOWER_INR,
+  CONSULT_PAYMENT_LINK,
+} from "@/lib/consult/config";
 
 export const metadata = {
   title: "Consult Doctor — book appointment",
   description:
-    "Book a paediatric consult slot, pay securely with Razorpay, and get confirmation plus reminders.",
+    "Book a paediatric consult slot, pay via Razorpay, and get confirmation plus reminders.",
 };
 
 export default function ConsultPage() {
@@ -27,9 +31,21 @@ export default function ConsultPage() {
               Consult Doctor
             </h1>
             <p className="mt-3 text-lg text-muted-foreground">
-              Choose a slot, pay the ₹{CONSULT_FEE_INR} consult fee, and receive
-              confirmation for you and the clinic — with reminders before the
-              visit.
+              Choose a slot, pay the consult fee (₹{CONSULT_FEE_FOLLOWER_INR} for
+              Instagram followers, ₹{CONSULT_FEE_NON_FOLLOWER_INR} otherwise),
+              and receive confirmation for you and the clinic — with reminders
+              before the visit.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Payment:{" "}
+              <a
+                href={CONSULT_PAYMENT_LINK}
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-primary underline-offset-2 hover:underline"
+              >
+                razorpay.me/@drcareforkids
+              </a>
             </p>
 
             <div className="mt-8 flex flex-col gap-5 rounded-3xl border border-border/80 bg-card p-6 sm:flex-row sm:items-center sm:p-8">

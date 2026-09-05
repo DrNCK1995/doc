@@ -18,6 +18,7 @@ const bodySchema = z.object({
   childName: z.string().trim().min(1).max(120),
   childAgeNote: z.string().trim().max(80).optional(),
   reason: z.string().trim().max(500).optional(),
+  instagramFollower: z.boolean(),
 });
 
 export async function POST(req: Request) {

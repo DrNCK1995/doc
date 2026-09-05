@@ -1,8 +1,9 @@
 import type { Appointment, AppointmentVisitType } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import {
-  CONSULT_FEE_INR,
-  CONSULT_FEE_PAISE,
+  CONSULT_PAYMENT_LINK,
+  consultFeeInr,
+  consultFeePaise,
   formatDisplayDate,
   formatSlotLabel,
   generateConfirmationCode,
@@ -18,12 +19,7 @@ import {
   sendBookingConfirmationEmails,
   type AppointmentMailPayload,
 } from "@/lib/consult/notify";
-import {
-  createConsultOrder,
-  getRazorpayPublicKey,
-  razorpayConfigured,
-  verifyPaymentSignature,
-} from "@/lib/consult/razorpay";
+import { verifyPaymentSignature } from "@/lib/consult/razorpay";
 
 function toMailPayload(a: Appointment): AppointmentMailPayload {
   return {
@@ -138,6 +134,8 @@ export type CreateBookingInput = {
   childName: string;
   childAgeNote?: string;
   reason?: string;
+  /** Instagram follower (@dr.careforkids) → ₹300; otherwise ₹500. */
+  instagramFollower: boolean;
 };
 
 export async function createBooking(input: CreateBookingInput) {
@@ -171,6 +169,12 @@ export async function createBooking(input: CreateBookingInput) {
   const confirmationCode = generateConfirmationCode();
   const paymentExpiresAt = new Date(Date.now() + SLOT_HOLD_MINUTES * 60_000);
   const slotLabel = formatSlotLabel(input.slotStart);
+  const feeInr = consultFeeInr(input.instagramFollower);
+  const amountPaise = consultFeePaise(input.instagramFollower);
+  const followerNote = input.instagramFollower
+    ? "Instagram follower (₹300)"
+    : "Non-follower (₹500)";
+  const reasonParts = [input.reason?.trim(), followerNote].filter(Boolean);
 
   const appointment = await prisma.appointment.create({
     data: {
@@ -185,56 +189,64 @@ export async function createBooking(input: CreateBookingInput) {
       parentMobile: input.parentMobile.trim(),
       childName: input.childName.trim(),
       childAgeNote: input.childAgeNote?.trim() || null,
-      reason: input.reason?.trim() || null,
-      amountPaise: CONSULT_FEE_PAISE,
+      reason: reasonParts.join(" · ") || null,
+      amountPaise,
       paymentExpiresAt,
     },
   });
 
-  if (!razorpayConfigured()) {
-    const confirmed = await prisma.appointment.update({
-      where: { id: appointment.id },
-      data: {
-        status: "CONFIRMED",
-        paidAt: new Date(),
-        paymentExpiresAt: null,
-        confirmationSentAt: new Date(),
-      },
+  return {
+    mode: "payment_link" as const,
+    appointment: serializeAppointment(appointment),
+    paymentUrl: CONSULT_PAYMENT_LINK,
+    feeInr,
+    message: `Pay exactly ₹${feeInr} at the Razorpay link, then confirm below.`,
+  };
+}
+
+/** Confirm after parent pays via Razorpay.me payment page. */
+export async function confirmPaidViaPaymentLink(confirmationCode: string) {
+  const appointment = await prisma.appointment.findUnique({
+    where: { confirmationCode: confirmationCode.trim().toUpperCase() },
+  });
+  if (!appointment) {
+    throw Object.assign(new Error("Appointment not found"), { status: 404 });
+  }
+  if (appointment.status === "CONFIRMED") {
+    return { appointment: serializeAppointment(appointment), already: true };
+  }
+  if (appointment.status !== "PENDING_PAYMENT") {
+    throw Object.assign(new Error("Appointment is not awaiting payment"), {
+      status: 400,
     });
-    await sendBookingConfirmationEmails(toMailPayload(confirmed));
-    return {
-      mode: "demo" as const,
-      appointment: serializeAppointment(confirmed),
-      message:
-        "Razorpay keys not set — booking confirmed in demo mode. Add RAZORPAY_* env vars for live payments.",
-      feeInr: CONSULT_FEE_INR,
-    };
+  }
+  if (
+    appointment.paymentExpiresAt &&
+    appointment.paymentExpiresAt.getTime() < Date.now()
+  ) {
+    await prisma.appointment.update({
+      where: { id: appointment.id },
+      data: { status: "CANCELLED" },
+    });
+    throw Object.assign(
+      new Error("Payment window expired — please book again"),
+      { status: 410 },
+    );
   }
 
-  const order = await createConsultOrder({
-    receipt: confirmationCode,
-    notes: {
-      appointmentId: appointment.id,
-      confirmationCode,
-    },
-  });
-
-  const updated = await prisma.appointment.update({
+  const confirmed = await prisma.appointment.update({
     where: { id: appointment.id },
-    data: { razorpayOrderId: order.id },
+    data: {
+      status: "CONFIRMED",
+      paidAt: new Date(),
+      paymentExpiresAt: null,
+      confirmationSentAt: new Date(),
+    },
   });
 
-  return {
-    mode: "razorpay" as const,
-    appointment: serializeAppointment(updated),
-    order: {
-      id: order.id,
-      amount: order.amount,
-      currency: order.currency,
-    },
-    keyId: getRazorpayPublicKey(),
-    feeInr: CONSULT_FEE_INR,
-  };
+  await sendBookingConfirmationEmails(toMailPayload(confirmed));
+
+  return { appointment: serializeAppointment(confirmed), already: false };
 }
 
 export async function verifyAndConfirmPayment(input: {

@@ -1,12 +1,15 @@
 "use client";
 
 import * as React from "react";
-import Script from "next/script";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { INSTAGRAM_URL } from "@/lib/constants";
 import {
-  CONSULT_FEE_INR,
+  CONSULT_FEE_FOLLOWER_INR,
+  CONSULT_FEE_NON_FOLLOWER_INR,
+  CONSULT_PAYMENT_LINK,
+  consultFeeInr,
   VISIT_TYPE_KEYS,
   VISIT_TYPE_LABELS,
   type VisitTypeKey,
@@ -30,29 +33,20 @@ type AppointmentSummary = {
   visitType: string;
 };
 
-declare global {
-  interface Window {
-    Razorpay?: new (options: Record<string, unknown>) => {
-      open: () => void;
-      on: (event: string, handler: (resp: unknown) => void) => void;
-    };
-  }
-}
-
 const STEPS = ["Visit", "Slot", "Details", "Pay", "Done"] as const;
 
 export function ConsultBookingWizard() {
   const [step, setStep] = React.useState(0);
   const [days, setDays] = React.useState<DaySlots[]>([]);
-  const [feeInr, setFeeInr] = React.useState(CONSULT_FEE_INR);
-  const [razorpayReady, setRazorpayReady] = React.useState(false);
+  const [paymentUrl, setPaymentUrl] = React.useState(CONSULT_PAYMENT_LINK);
   const [loadingSlots, setLoadingSlots] = React.useState(true);
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [confirmed, setConfirmed] = React.useState<AppointmentSummary | null>(
     null,
   );
-  const [demoMessage, setDemoMessage] = React.useState<string | null>(null);
+  const [pendingCode, setPendingCode] = React.useState<string | null>(null);
+  const [awaitingPayment, setAwaitingPayment] = React.useState(false);
 
   const [visitType, setVisitType] =
     React.useState<VisitTypeKey>("CONSULTATION");
@@ -64,6 +58,14 @@ export function ConsultBookingWizard() {
   const [childName, setChildName] = React.useState("");
   const [childAgeNote, setChildAgeNote] = React.useState("");
   const [reason, setReason] = React.useState("");
+  const [instagramFollower, setInstagramFollower] = React.useState<
+    boolean | null
+  >(null);
+
+  const feeInr =
+    instagramFollower === null
+      ? CONSULT_FEE_NON_FOLLOWER_INR
+      : consultFeeInr(instagramFollower);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -75,8 +77,9 @@ export function ConsultBookingWizard() {
         if (!res.ok) throw new Error(data.error || "Could not load slots");
         if (cancelled) return;
         setDays(data.days ?? []);
-        setFeeInr(data.feeInr ?? CONSULT_FEE_INR);
-        setRazorpayReady(Boolean(data.razorpayReady));
+        if (typeof data.paymentUrl === "string" && data.paymentUrl) {
+          setPaymentUrl(data.paymentUrl);
+        }
         if (data.days?.[0]?.dateKey) setDateKey(data.days[0].dateKey);
       } catch (e) {
         if (!cancelled) {
@@ -96,6 +99,10 @@ export function ConsultBookingWizard() {
     selectedDay?.slots.find((s) => s.start === slotStart)?.label ?? slotStart;
 
   async function startPayment() {
+    if (instagramFollower === null) {
+      setError("Please say whether you follow on Instagram");
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -112,32 +119,23 @@ export function ConsultBookingWizard() {
           childName,
           childAgeNote: childAgeNote || undefined,
           reason: reason || undefined,
+          instagramFollower,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Booking failed");
 
-      if (data.mode === "demo") {
-        setConfirmed(data.appointment);
-        setDemoMessage(data.message ?? null);
-        setStep(4);
-        return;
-      }
+      const code = data.appointment?.confirmationCode as string | undefined;
+      if (!code) throw new Error("Booking created without a confirmation code");
 
-      if (!data.order?.id || !data.keyId) {
-        throw new Error("Payment order was not created");
-      }
-
-      await openRazorpayCheckout({
-        keyId: data.keyId,
-        orderId: data.order.id,
-        amount: data.order.amount,
-        currency: data.order.currency,
-        confirmationCode: data.appointment.confirmationCode,
-        parentName,
-        parentEmail,
-        parentMobile,
-      });
+      setPendingCode(code);
+      setAwaitingPayment(true);
+      const url =
+        typeof data.paymentUrl === "string" && data.paymentUrl
+          ? data.paymentUrl
+          : paymentUrl;
+      setPaymentUrl(url);
+      window.open(url, "_blank", "noopener,noreferrer");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Booking failed");
     } finally {
@@ -145,81 +143,27 @@ export function ConsultBookingWizard() {
     }
   }
 
-  function openRazorpayCheckout(opts: {
-    keyId: string;
-    orderId: string;
-    amount: number;
-    currency: string;
-    confirmationCode: string;
-    parentName: string;
-    parentEmail: string;
-    parentMobile: string;
-  }): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!window.Razorpay) {
-        reject(
-          new Error("Razorpay checkout failed to load — refresh and retry"),
-        );
-        return;
-      }
-
-      const rzp = new window.Razorpay({
-        key: opts.keyId,
-        amount: opts.amount,
-        currency: opts.currency,
-        name: "Dr Care for Kids",
-        description: `Consult fee · ${opts.confirmationCode}`,
-        order_id: opts.orderId,
-        prefill: {
-          name: opts.parentName,
-          email: opts.parentEmail,
-          contact: opts.parentMobile,
-        },
-        theme: { color: "#1b7a9e" },
-        handler: async (response: unknown) => {
-          const r = response as {
-            razorpay_order_id: string;
-            razorpay_payment_id: string;
-            razorpay_signature: string;
-          };
-          try {
-            const verifyRes = await fetch("/api/appointments/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                confirmationCode: opts.confirmationCode,
-                razorpayOrderId: r.razorpay_order_id,
-                razorpayPaymentId: r.razorpay_payment_id,
-                razorpaySignature: r.razorpay_signature,
-              }),
-            });
-            const verifyData = await verifyRes.json();
-            if (!verifyRes.ok) {
-              throw new Error(verifyData.error || "Payment verify failed");
-            }
-            setConfirmed(verifyData.appointment);
-            setDemoMessage(null);
-            setStep(4);
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        },
+  async function confirmPaymentDone() {
+    if (!pendingCode) return;
+    setError(null);
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/appointments/confirm-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmationCode: pendingCode }),
       });
-
-      rzp.on("payment.failed", (resp: unknown) => {
-        const detail =
-          resp && typeof resp === "object" && "error" in resp
-            ? String(
-                (resp as { error?: { description?: string } }).error
-                  ?.description ?? "Payment failed",
-              )
-            : "Payment failed";
-        reject(new Error(detail));
-      });
-
-      rzp.open();
-    });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not confirm payment");
+      setConfirmed(data.appointment);
+      setAwaitingPayment(false);
+      setPendingCode(null);
+      setStep(4);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not confirm payment");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function canContinueFromDetails() {
@@ -229,17 +173,13 @@ export function ConsultBookingWizard() {
       /^[6-9]\d{9}$/.test(parentMobile.trim()) &&
       childName.trim().length >= 1 &&
       Boolean(dateKey) &&
-      Boolean(slotStart)
+      Boolean(slotStart) &&
+      instagramFollower !== null
     );
   }
 
   return (
     <div className="mt-10 space-y-6">
-      <Script
-        src="https://checkout.razorpay.com/v1/checkout.js"
-        strategy="lazyOnload"
-      />
-
       <div className="flex flex-wrap gap-2">
         {STEPS.map((label, i) => (
           <span
@@ -259,11 +199,19 @@ export function ConsultBookingWizard() {
 
       <p className="text-sm text-muted-foreground">
         Consultation fee:{" "}
-        <span className="font-medium text-foreground">₹{feeInr}</span>
-        {!razorpayReady ? (
-          <span className="ml-2 text-xs">
-            (demo confirm until Razorpay keys are added)
-          </span>
+        <span className="font-medium text-foreground">
+          ₹{CONSULT_FEE_FOLLOWER_INR}
+        </span>{" "}
+        if you follow on Instagram, otherwise{" "}
+        <span className="font-medium text-foreground">
+          ₹{CONSULT_FEE_NON_FOLLOWER_INR}
+        </span>
+        {instagramFollower !== null ? (
+          <>
+            {" "}
+            — your fee:{" "}
+            <span className="font-medium text-foreground">₹{feeInr}</span>
+          </>
         ) : null}
       </p>
 
@@ -436,6 +384,45 @@ export function ConsultBookingWizard() {
                 className="h-11 rounded-xl"
               />
             </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Do you follow Dr Care for Kids on Instagram?</Label>
+              <p className="text-xs text-muted-foreground">
+                Followers pay ₹{CONSULT_FEE_FOLLOWER_INR}. Others pay ₹
+                {CONSULT_FEE_NON_FOLLOWER_INR}.{" "}
+                <a
+                  href={INSTAGRAM_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  Open Instagram
+                </a>
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setInstagramFollower(true)}
+                  className={`rounded-xl border px-4 py-2 text-sm ${
+                    instagramFollower === true
+                      ? "border-primary bg-primary/10 font-medium"
+                      : "border-border/80"
+                  }`}
+                >
+                  Yes — ₹{CONSULT_FEE_FOLLOWER_INR}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInstagramFollower(false)}
+                  className={`rounded-xl border px-4 py-2 text-sm ${
+                    instagramFollower === false
+                      ? "border-primary bg-primary/10 font-medium"
+                      : "border-border/80"
+                  }`}
+                >
+                  No — ₹{CONSULT_FEE_NON_FOLLOWER_INR}
+                </button>
+              </div>
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -482,36 +469,86 @@ export function ConsultBookingWizard() {
               <span className="text-muted-foreground">Email:</span> {parentEmail}
             </li>
             <li>
+              <span className="text-muted-foreground">Instagram follower:</span>{" "}
+              {instagramFollower ? "Yes" : "No"}
+            </li>
+            <li>
               <span className="text-muted-foreground">Fee:</span> ₹{feeInr}
             </li>
           </ul>
-          <p className="text-xs text-muted-foreground">
-            After payment you and the doctor both get a confirmation email.
-            Reminder emails go out the day before / morning of the visit.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="rounded-full"
-              onClick={() => setStep(2)}
-              disabled={submitting}
-            >
-              Back
-            </Button>
-            <Button
-              type="button"
-              className="rounded-full"
-              onClick={() => void startPayment()}
-              disabled={submitting}
-            >
-              {submitting
-                ? "Please wait…"
-                : razorpayReady
-                  ? `Pay ₹${feeInr} with Razorpay`
-                  : `Confirm booking (demo) · ₹${feeInr}`}
-            </Button>
-          </div>
+
+          {awaitingPayment && pendingCode ? (
+            <div className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm">
+              <p>
+                Slot held. Pay exactly{" "}
+                <span className="font-semibold">₹{feeInr}</span> at{" "}
+                <a
+                  href={paymentUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  razorpay.me/@drcareforkids
+                </a>
+                .
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Confirmation code:{" "}
+                <span className="font-mono font-semibold text-foreground">
+                  {pendingCode}
+                </span>
+                . Mention this in the payment notes if asked.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={() =>
+                    window.open(paymentUrl, "_blank", "noopener,noreferrer")
+                  }
+                >
+                  Open payment link
+                </Button>
+                <Button
+                  type="button"
+                  className="rounded-full"
+                  onClick={() => void confirmPaymentDone()}
+                  disabled={submitting}
+                >
+                  {submitting ? "Confirming…" : `I paid ₹${feeInr}`}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-xs text-muted-foreground">
+                You will be taken to Razorpay to pay ₹{feeInr}. After paying,
+                return here and confirm so we can email you and the clinic.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={() => setStep(2)}
+                  disabled={submitting}
+                >
+                  Back
+                </Button>
+                <Button
+                  type="button"
+                  className="rounded-full"
+                  onClick={() => void startPayment()}
+                  disabled={submitting || instagramFollower === null}
+                >
+                  {submitting
+                    ? "Please wait…"
+                    : `Pay ₹${feeInr} via Razorpay`}
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       ) : null}
 
@@ -536,14 +573,10 @@ export function ConsultBookingWizard() {
             <li>Receipt email: {confirmed.parentEmail}</li>
             <li>Paid: ₹{confirmed.amountInr}</li>
           </ul>
-          {demoMessage ? (
-            <p className="text-xs text-muted-foreground">{demoMessage}</p>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              Confirmation sent to you and the clinic. Reminders will follow
-              before the visit.
-            </p>
-          )}
+          <p className="text-xs text-muted-foreground">
+            Confirmation sent to you and the clinic. Reminders will follow
+            before the visit.
+          </p>
           <Button
             type="button"
             variant="outline"
@@ -551,9 +584,11 @@ export function ConsultBookingWizard() {
             onClick={() => {
               setStep(0);
               setConfirmed(null);
-              setDemoMessage(null);
               setSlotStart("");
               setReason("");
+              setInstagramFollower(null);
+              setAwaitingPayment(false);
+              setPendingCode(null);
             }}
           >
             Book another

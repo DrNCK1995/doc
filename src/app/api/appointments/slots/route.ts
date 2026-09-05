@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { listAvailableSlots } from "@/lib/consult/booking";
-import { CONSULT_FEE_INR } from "@/lib/consult/config";
-import { razorpayConfigured } from "@/lib/consult/razorpay";
+import {
+  CONSULT_FEE_FOLLOWER_INR,
+  CONSULT_FEE_NON_FOLLOWER_INR,
+  CONSULT_PAYMENT_LINK,
+} from "@/lib/consult/config";
 
 export const dynamic = "force-dynamic";
 
@@ -9,8 +12,9 @@ export async function GET() {
   try {
     const days = await listAvailableSlots();
     return NextResponse.json({
-      feeInr: CONSULT_FEE_INR,
-      razorpayReady: razorpayConfigured(),
+      feeFollowerInr: CONSULT_FEE_FOLLOWER_INR,
+      feeNonFollowerInr: CONSULT_FEE_NON_FOLLOWER_INR,
+      paymentUrl: CONSULT_PAYMENT_LINK,
       days,
     });
   } catch (err) {
