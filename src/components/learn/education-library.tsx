@@ -19,7 +19,13 @@ import {
   isAgeBandId,
   topicsForBand,
 } from "@/lib/learn/library";
-import { PARENT_FAQ_SECTIONS } from "@/lib/learn/faqs";
+import {
+  FAQ_GROUP_LABELS,
+  FAQ_KIND_LABELS,
+  PARENT_FAQ_SECTIONS,
+  type FaqGroupId,
+  type FaqKind,
+} from "@/lib/learn/faqs";
 import type { AgeBandId, LearnLang, LearnTopic } from "@/lib/learn/types";
 import { cn } from "@/lib/utils/cn";
 
@@ -51,9 +57,10 @@ const COPY = {
     te: "సాధారణ సమస్యలు & ప్రశ్నోత్తరాలు",
   },
   faqsLead: {
-    en: "Fever, vaccines, private vaccines, newborn screening, junk food & biscuits, sleep, nutrition, Type 1 diabetes, and hypothyroidism — short answers for busy parents. Education only, not a personal diagnosis.",
-    te: "జ్వరం, టీకాలు, ప్రైవేట్ టీకాలు, నవజాత స్క్రీనింగ్, జంక్ ఫుడ్ & బిస్కెట్లు, నిద్ర, పోషణ, టైప్ 1 డయాబెటిస్, హైపోథైరాయిడిజం — తల్లిదండ్రులకు చిన్న సమాధానాలు. విద్య మాత్రమే, వ్యక్తిగత రోగ నిర్ధారణ కాదు.",
+    en: "Organised by topic — common clinic problems and parent FAQs in English and Telugu. Education only, not a personal diagnosis. Based on everyday paediatric questions and IAP parent-guideline themes.",
+    te: "అంశాల వారీగా — సాధారణ క్లినిక్ సమస్యలు, తల్లిదండ్రుల ప్రశ్నోత్తరాలు ఆంగ్లం & తెలుగు. విద్య మాత్రమే, వ్యక్తిగత రోగ నిర్ధారణ కాదు. రోజువారీ పీడియాట్రిక్ ప్రశ్నలు, IAP పేరెంట్ గైడ్‌లైన్ థీమ్‌ల ఆధారంగా.",
   },
+  allGroups: { en: "All groups", te: "అన్ని గ్రూపులు" },
 };
 
 export function EducationLibrary() {
@@ -331,12 +338,41 @@ function InfographicStrip({ lang, topic }: { lang: LearnLang; topic: LearnTopic 
 }
 
 function ParentFaqBlock({ lang }: { lang: LearnLang }) {
-  const [openId, setOpenId] = React.useState<string | null>(
-    PARENT_FAQ_SECTIONS[0]?.id ?? null,
+  const [kind, setKind] = React.useState<FaqKind>("common-problem");
+  const [group, setGroup] = React.useState<FaqGroupId | "all">("all");
+
+  const kindSections = PARENT_FAQ_SECTIONS.filter((s) => s.kind === kind);
+  const groupsInKind = [...new Set(kindSections.map((s) => s.group))];
+  const filtered = kindSections.filter((s) =>
+    group === "all" ? true : s.group === group,
   );
 
+  const [openId, setOpenId] = React.useState<string | null>(
+    () =>
+      PARENT_FAQ_SECTIONS.find((s) => s.kind === "common-problem")?.id ?? null,
+  );
+
+  React.useEffect(() => {
+    setGroup("all");
+  }, [kind]);
+
+  React.useEffect(() => {
+    const sections = PARENT_FAQ_SECTIONS.filter((s) => s.kind === kind).filter(
+      (s) => (group === "all" ? true : s.group === group),
+    );
+    setOpenId((current) => {
+      if (current && sections.some((s) => s.id === current)) return current;
+      return sections[0]?.id ?? null;
+    });
+  }, [kind, group]);
+
+  const active = filtered.find((s) => s.id === openId) ?? filtered[0];
+
   return (
-    <section id="parent-faqs" className="scroll-mt-24 space-y-6 border-t border-border/80 pt-10">
+    <section
+      id="parent-faqs"
+      className="scroll-mt-24 space-y-6 border-t border-border/80 pt-10"
+    >
       <div className="max-w-2xl">
         <p className="text-xs font-semibold uppercase tracking-wider text-accent">
           {COPY.faqsEyebrow[lang]}
@@ -348,8 +384,61 @@ function ParentFaqBlock({ lang }: { lang: LearnLang }) {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {PARENT_FAQ_SECTIONS.map((section) => {
-          const active = openId === section.id;
+        {(["common-problem", "faq"] as const).map((k) => {
+          const selected = kind === k;
+          const count = PARENT_FAQ_SECTIONS.filter((s) => s.kind === k).length;
+          return (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setKind(k)}
+              className={cn(
+                "rounded-full border px-4 py-2 text-sm transition",
+                selected
+                  ? "border-primary bg-primary text-primary-foreground font-medium"
+                  : "border-border/80 text-muted-foreground hover:border-accent/50",
+              )}
+            >
+              {FAQ_KIND_LABELS[k][lang]}
+              <span className="ml-1.5 opacity-80">({count})</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setGroup("all")}
+          className={cn(
+            "rounded-full border px-3 py-1.5 text-xs transition sm:text-sm",
+            group === "all"
+              ? "border-accent bg-accent/15 font-medium text-foreground"
+              : "border-border/80 text-muted-foreground hover:border-accent/40",
+          )}
+        >
+          {COPY.allGroups[lang]}
+        </button>
+        {groupsInKind.map((g) => (
+          <button
+            key={g}
+            type="button"
+            onClick={() => setGroup(g)}
+            className={cn(
+              "rounded-full border px-3 py-1.5 text-xs transition sm:text-sm",
+              group === g
+                ? "border-accent bg-accent/15 font-medium text-foreground"
+                : "border-border/80 text-muted-foreground hover:border-accent/40",
+            )}
+          >
+            {FAQ_GROUP_LABELS[g][lang]}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {filtered.map((section) => {
+          const selected = active?.id === section.id;
           return (
             <button
               key={section.id}
@@ -357,7 +446,7 @@ function ParentFaqBlock({ lang }: { lang: LearnLang }) {
               onClick={() => setOpenId(section.id)}
               className={cn(
                 "rounded-full border px-3 py-1.5 text-sm transition",
-                active
+                selected
                   ? "border-primary bg-primary/10 font-medium text-foreground"
                   : "border-border/80 text-muted-foreground hover:border-accent/50",
               )}
@@ -369,22 +458,22 @@ function ParentFaqBlock({ lang }: { lang: LearnLang }) {
         })}
       </div>
 
-      {PARENT_FAQ_SECTIONS.filter((s) => s.id === openId).map((section) => (
-        <div
-          key={section.id}
-          className="space-y-4 rounded-3xl border border-border/80 bg-card/80 p-5 sm:p-7"
-        >
+      {active ? (
+        <div className="space-y-4 rounded-3xl border border-border/80 bg-card/80 p-5 sm:p-7">
           <div>
-            <h3 className="font-display text-2xl font-semibold">
-              <span aria-hidden>{section.emoji} </span>
-              {section.title[lang]}
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {FAQ_GROUP_LABELS[active.group][lang]}
+            </p>
+            <h3 className="mt-1 font-display text-2xl font-semibold">
+              <span aria-hidden>{active.emoji} </span>
+              {active.title[lang]}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              {section.intro[lang]}
+              {active.intro[lang]}
             </p>
           </div>
           <ul className="space-y-3">
-            {section.items.map((item) => (
+            {active.items.map((item) => (
               <li key={item.q.en}>
                 <details className="group rounded-2xl border border-border/60 bg-background/70 px-4 py-3 open:border-accent/40">
                   <summary className="cursor-pointer list-none font-medium marker:content-none [&::-webkit-details-marker]:hidden">
@@ -406,7 +495,7 @@ function ParentFaqBlock({ lang }: { lang: LearnLang }) {
             ))}
           </ul>
         </div>
-      ))}
+      ) : null}
     </section>
   );
 }

@@ -5,7 +5,7 @@ import { EducationLibrary } from "@/components/learn/education-library";
 export const metadata: Metadata = {
   title: "Parent education library",
   description:
-    "Age-based parent guides plus FAQs on fever, vaccines, private vaccines, newborn screening, junk food, sleep, nutrition, Type 1 diabetes, and hypothyroidism — English and Telugu.",
+    "Age-based parent guides plus organised Common Problems and FAQs — constipation, cough, asthma, febrile seizure, screen time, vaccines, nutrition, puberty, and more — English and Telugu.",
 };
 
 export default function LearnPage() {

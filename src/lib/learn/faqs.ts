@@ -1,21 +1,15 @@
-import type { Bilingual } from "./types";
+import type { FaqSection } from "./faq-types";
+import { COMMON_PROBLEM_SECTIONS } from "./faq-common-problems";
+import { NEW_PARENT_FAQ_SECTIONS } from "./faq-parenting-new";
 
-export type FaqItem = {
-  q: Bilingual;
-  a: Bilingual;
-};
+export type { FaqItem, FaqSection, FaqKind, FaqGroupId } from "./faq-types";
+export { FAQ_GROUP_LABELS, FAQ_KIND_LABELS } from "./faq-types";
 
-export type FaqSection = {
-  id: string;
-  emoji: string;
-  title: Bilingual;
-  intro: Bilingual;
-  items: FaqItem[];
-};
-
-export const PARENT_FAQ_SECTIONS: FaqSection[] = [
+const CORE_PARENT_FAQ_SECTIONS: FaqSection[] = [
   {
     id: "fever",
+    kind: "faq",
+    group: "infection",
     emoji: "🌡️",
     title: {
       en: "Fever & common illnesses",
@@ -80,6 +74,8 @@ export const PARENT_FAQ_SECTIONS: FaqSection[] = [
   },
   {
     id: "vaccines",
+    kind: "faq",
+    group: "vaccines",
     emoji: "💉",
     title: { en: "Vaccines — FAQs", te: "టీకాలు — ప్రశ్నోత్తరాలు" },
     intro: {
@@ -141,6 +137,8 @@ export const PARENT_FAQ_SECTIONS: FaqSection[] = [
   },
   {
     id: "sleep",
+    kind: "faq",
+    group: "sleep-screens",
     emoji: "😴",
     title: { en: "Sleep — FAQs", te: "నిద్ర — ప్రశ్నోత్తరాలు" },
     intro: {
@@ -202,6 +200,8 @@ export const PARENT_FAQ_SECTIONS: FaqSection[] = [
   },
   {
     id: "nutrition",
+    kind: "faq",
+    group: "feeding",
     emoji: "🥣",
     title: { en: "Nutrition — FAQs", te: "పోషణ — ప్రశ్నోత్తరాలు" },
     intro: {
@@ -263,6 +263,8 @@ export const PARENT_FAQ_SECTIONS: FaqSection[] = [
   },
   {
     id: "junk-food",
+    kind: "faq",
+    group: "feeding",
     emoji: "🍪",
     title: {
       en: "Junk food & biscuits — FAQs",
@@ -327,6 +329,8 @@ export const PARENT_FAQ_SECTIONS: FaqSection[] = [
   },
   {
     id: "newborn-screening",
+    kind: "faq",
+    group: "vaccines",
     emoji: "🧪",
     title: {
       en: "Newborn screening tests — FAQs",
@@ -391,6 +395,8 @@ export const PARENT_FAQ_SECTIONS: FaqSection[] = [
   },
   {
     id: "private-vaccines",
+    kind: "faq",
+    group: "vaccines",
     emoji: "🏥",
     title: {
       en: "Private vaccines — FAQs",
@@ -455,6 +461,8 @@ export const PARENT_FAQ_SECTIONS: FaqSection[] = [
   },
   {
     id: "t1dm",
+    kind: "faq",
+    group: "growth-endo",
     emoji: "🩸",
     title: {
       en: "Type 1 diabetes — FAQs",
@@ -519,6 +527,8 @@ export const PARENT_FAQ_SECTIONS: FaqSection[] = [
   },
   {
     id: "hypothyroid",
+    kind: "faq",
+    group: "growth-endo",
     emoji: "🦋",
     title: {
       en: "Hypothyroidism — FAQs",
@@ -581,4 +591,10 @@ export const PARENT_FAQ_SECTIONS: FaqSection[] = [
       },
     ],
   },
+];
+
+export const PARENT_FAQ_SECTIONS: FaqSection[] = [
+  ...COMMON_PROBLEM_SECTIONS,
+  ...CORE_PARENT_FAQ_SECTIONS,
+  ...NEW_PARENT_FAQ_SECTIONS,
 ];
