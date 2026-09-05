@@ -54,7 +54,7 @@ const BAND_COPY: Record<
         title: "Feeding rhythm",
         body: "Feed on demand — often 8–12 times in 24 hours. Wet nappies and a settled baby after feeds matter more than the clock.",
         href: "/learn",
-        cta: "Open Baby Basics",
+        cta: "Open Guides & FAQs",
       },
       {
         emoji: "😴",
@@ -143,7 +143,7 @@ const BAND_COPY: Record<
         title: "Teething comfort",
         body: "Drooling and chewing are common. Avoid amber necklaces; cool teething rings are safer.",
         href: "/learn",
-        cta: "Parenting Hub",
+        cta: "Guides & FAQs",
       },
     ],
   },
@@ -190,7 +190,7 @@ const BAND_COPY: Record<
         title: "School readiness",
         body: "Independence, toilet skills, and listening in a group — gentle practice helps.",
         href: "/learn",
-        cta: "Parenting Hub",
+        cta: "Guides & FAQs",
       },
       {
         emoji: "📈",

@@ -249,7 +249,7 @@ export default function HomePage() {
             </div>
             <div className="mt-8">
               <Button asChild variant="outline" className="rounded-full">
-                <Link href="/learn">Explore Parent Guides</Link>
+                <Link href="/learn">Explore Guides & FAQs</Link>
               </Button>
             </div>
           </div>

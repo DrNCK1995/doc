@@ -7,7 +7,9 @@ import {
   Activity,
   Baby,
   BookOpen,
+  CircleHelp,
   Clock,
+  HeartPulse,
   Stethoscope,
   Utensils,
   Users,
@@ -37,14 +39,29 @@ const BAND_ICONS = {
 } as const;
 
 const COPY = {
-  eyebrow: { en: "Parent education", te: "తల్లిదండ్రుల విద్య" },
+  eyebrow: { en: "Guides & FAQs", te: "గైడ్‌లు & ప్రశ్నోత్తరాలు" },
   title: {
-    en: "Library by age — not a blog",
-    te: "వయసు ప్రకారం లైబ్రరీ — బ్లాగ్ కాదు",
+    en: "Age guides, common problems & FAQs",
+    te: "వయసు గైడ్‌లు, సాధారణ సమస్యలు & ప్రశ్నోత్తరాలు",
   },
   lead: {
-    en: "Pick the child’s age, then one topic. Each guide is a two-minute explanation, a four-step infographic, and warning signs — in English and Telugu. This is parent education, not a diagnosis.",
-    te: "పిల్ల వయసు ఎంచుకుని, ఒక అంశం తీసుకోండి. ప్రతి గైడ్‌లో రెండు నిమిషాల వివరణ, నాలుగు దశల సూచన చిత్రం, హెచ్చరిక సైన్లు — ఆంగ్లం, తెలుగు. ఇది తల్లిదండ్రుల విద్య, రోగ నిర్ధారణ కాదు.",
+    en: "Baby and child care by age, plus common clinic problems and parent FAQs — English and Telugu. Education only, not a diagnosis.",
+    te: "వయసు ప్రకారం పాప / పిల్ల సంరక్షణ, సాధారణ క్లినిక్ సమస్యలు, తల్లిదండ్రుల ప్రశ్నోత్తరాలు — ఆంగ్లం & తెలుగు. విద్య మాత్రమే, రోగ నిర్ధారణ కాదు.",
+  },
+  jumpAge: { en: "Age guides", te: "వయసు గైడ్‌లు" },
+  jumpAgeHint: {
+    en: "Newborn to 5 years",
+    te: "నవజాతం నుంచి 5 ఏళ్లు",
+  },
+  jumpProblems: { en: "Common problems", te: "సాధారణ సమస్యలు" },
+  jumpProblemsHint: {
+    en: "Cough, constipation, seizures…",
+    te: "దగ్గు, మలబద్ధకం, మూర్ఛ…",
+  },
+  jumpFaqs: { en: "Parent FAQs", te: "తల్లిదండ్రుల FAQs" },
+  jumpFaqsHint: {
+    en: "Vaccines, sleep, nutrition…",
+    te: "టీకాలు, నిద్ర, పోషణ…",
   },
   pickAge: { en: "Choose an age", te: "వయసు ఎంచుకోండి" },
   pickTopic: { en: "Then a topic", te: "తర్వాత అంశం" },
@@ -75,19 +92,79 @@ export function EducationLibrary() {
   const topic =
     topics.find((item) => item.id === searchParams.get("topic")) ?? topics[0];
   const lang: LearnLang = searchParams.get("lang") === "te" ? "te" : "en";
+  const hubParam = searchParams.get("hub");
+  const faqKind: FaqKind =
+    hubParam === "faqs" ? "faq" : "common-problem";
+
+  function buildParams(opts: {
+    age?: AgeBandId;
+    topic?: string;
+    lang?: LearnLang;
+    hub?: "problems" | "faqs" | null;
+  }) {
+    const params = new URLSearchParams();
+    const nextAge = opts.age ?? band.id;
+    params.set("age", nextAge);
+    const list = topicsForBand(nextAge);
+    const chosen =
+      opts.topic && list.some((item) => item.id === opts.topic)
+        ? opts.topic
+        : (topic?.id ?? list[0]?.id);
+    if (chosen) params.set("topic", chosen);
+    const nextLang = opts.lang ?? lang;
+    if (nextLang === "te") params.set("lang", "te");
+    if (opts.hub === "problems" || opts.hub === "faqs") {
+      params.set("hub", opts.hub);
+    }
+    return params;
+  }
 
   function goTo(nextBand: AgeBandId, nextTopic?: string, nextLang: LearnLang = lang) {
-    const list = topicsForBand(nextBand);
-    const chosen =
-      nextTopic && list.some((item) => item.id === nextTopic)
-        ? nextTopic
-        : list[0]?.id;
-    const params = new URLSearchParams();
-    params.set("age", nextBand);
-    if (chosen) params.set("topic", chosen);
-    if (nextLang === "te") params.set("lang", "te");
+    const params = buildParams({
+      age: nextBand,
+      topic: nextTopic,
+      lang: nextLang,
+      hub: hubParam === "faqs" || hubParam === "problems" ? hubParam : null,
+    });
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
+
+  function jumpTo(target: "age" | "problems" | "faqs") {
+    const hash =
+      target === "age"
+        ? "age-guides"
+        : target === "problems"
+          ? "common-problems"
+          : "parent-faqs";
+    const params = buildParams({
+      hub: target === "age" ? null : target === "problems" ? "problems" : "faqs",
+    });
+    router.replace(`${pathname}?${params.toString()}#${hash}`, {
+      scroll: false,
+    });
+    requestAnimationFrame(() => {
+      document.getElementById(hash)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }
+
+  React.useEffect(() => {
+    const hash = window.location.hash.replace(/^#/, "");
+    if (
+      hash === "age-guides" ||
+      hash === "common-problems" ||
+      hash === "parent-faqs"
+    ) {
+      requestAnimationFrame(() => {
+        document.getElementById(hash)?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    }
+  }, [hubParam]);
 
   return (
     <div
@@ -125,7 +202,28 @@ export function EducationLibrary() {
         </div>
       </div>
 
-      <div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <JumpCard
+          icon={Baby}
+          title={COPY.jumpAge[lang]}
+          hint={COPY.jumpAgeHint[lang]}
+          onClick={() => jumpTo("age")}
+        />
+        <JumpCard
+          icon={HeartPulse}
+          title={COPY.jumpProblems[lang]}
+          hint={COPY.jumpProblemsHint[lang]}
+          onClick={() => jumpTo("problems")}
+        />
+        <JumpCard
+          icon={CircleHelp}
+          title={COPY.jumpFaqs[lang]}
+          hint={COPY.jumpFaqsHint[lang]}
+          onClick={() => jumpTo("faqs")}
+        />
+      </div>
+
+      <div id="age-guides" className="scroll-mt-24 space-y-3">
         <p className="text-sm font-medium text-muted-foreground">
           {COPY.pickAge[lang]}
         </p>
@@ -180,10 +278,40 @@ export function EducationLibrary() {
 
       {topic ? <TopicPane key={`${topic.id}-${lang}`} lang={lang} topic={topic} /> : null}
 
-      <ParentFaqBlock lang={lang} />
+      <ParentFaqBlock lang={lang} initialKind={faqKind} hubParam={hubParam} />
 
       <ScreeningDisclaimer />
     </div>
+  );
+}
+
+function JumpCard({
+  icon: Icon,
+  title,
+  hint,
+  onClick,
+}: {
+  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  title: string;
+  hint: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-start gap-3 rounded-2xl border border-border/80 bg-card/80 px-4 py-3 text-left transition hover:border-accent/50 hover:bg-accent/5"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <Icon className="h-5 w-5" aria-hidden />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-sm font-semibold text-foreground">
+          {title}
+        </span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
+      </span>
+    </button>
   );
 }
 
@@ -337,9 +465,22 @@ function InfographicStrip({ lang, topic }: { lang: LearnLang; topic: LearnTopic 
   );
 }
 
-function ParentFaqBlock({ lang }: { lang: LearnLang }) {
-  const [kind, setKind] = React.useState<FaqKind>("common-problem");
+function ParentFaqBlock({
+  lang,
+  initialKind,
+  hubParam,
+}: {
+  lang: LearnLang;
+  initialKind: FaqKind;
+  hubParam: string | null;
+}) {
+  const [kind, setKind] = React.useState<FaqKind>(initialKind);
   const [group, setGroup] = React.useState<FaqGroupId | "all">("all");
+
+  React.useEffect(() => {
+    setKind(initialKind);
+    setGroup("all");
+  }, [initialKind, hubParam]);
 
   const kindSections = PARENT_FAQ_SECTIONS.filter((s) => s.kind === kind);
   const groupsInKind = [...new Set(kindSections.map((s) => s.group))];
@@ -349,7 +490,7 @@ function ParentFaqBlock({ lang }: { lang: LearnLang }) {
 
   const [openId, setOpenId] = React.useState<string | null>(
     () =>
-      PARENT_FAQ_SECTIONS.find((s) => s.kind === "common-problem")?.id ?? null,
+      PARENT_FAQ_SECTIONS.find((s) => s.kind === initialKind)?.id ?? null,
   );
 
   React.useEffect(() => {
@@ -369,10 +510,10 @@ function ParentFaqBlock({ lang }: { lang: LearnLang }) {
   const active = filtered.find((s) => s.id === openId) ?? filtered[0];
 
   return (
-    <section
-      id="parent-faqs"
-      className="scroll-mt-24 space-y-6 border-t border-border/80 pt-10"
-    >
+    <div className="space-y-6 border-t border-border/80 pt-10">
+      <div id="common-problems" className="scroll-mt-24" />
+      <div id="parent-faqs" className="scroll-mt-24" />
+
       <div className="max-w-2xl">
         <p className="text-xs font-semibold uppercase tracking-wider text-accent">
           {COPY.faqsEyebrow[lang]}
@@ -496,6 +637,6 @@ function ParentFaqBlock({ lang }: { lang: LearnLang }) {
           </ul>
         </div>
       ) : null}
-    </section>
+    </div>
   );
 }

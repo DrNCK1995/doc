@@ -3,9 +3,9 @@ import { Suspense } from "react";
 import { EducationLibrary } from "@/components/learn/education-library";
 
 export const metadata: Metadata = {
-  title: "Parent education library",
+  title: "Guides & FAQs — parent education",
   description:
-    "Age-based parent guides plus organised Common Problems and FAQs — constipation, cough, asthma, febrile seizure, screen time, vaccines, nutrition, puberty, and more — English and Telugu.",
+    "Age-based baby and child guides plus organised Common Problems and Parent FAQs — English and Telugu.",
 };
 
 export default function LearnPage() {

@@ -67,7 +67,7 @@ const SECTIONS = [
       "Fast or difficult breathing.",
       "Yellowing of palms/soles or seizures — urgent care.",
     ],
-    cta: { href: "/learn", label: "Baby Basics in Learn" },
+    cta: { href: "/learn", label: "Guides & FAQs" },
   },
 ] as const;
 

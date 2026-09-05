@@ -59,10 +59,10 @@ export const NEED_TODAY: ToolCard[] = [
     href: "/dosage",
   },
   {
-    id: "baby-basics",
-    emoji: "👶",
-    title: "Baby Basics",
-    description: "Simple baby-care guidance.",
+    id: "guides-faqs",
+    emoji: "📚",
+    title: "Guides & FAQs",
+    description: "Age guides, common problems & parent FAQs.",
     href: "/learn",
   },
   {
@@ -112,10 +112,10 @@ export const SMART_TOOLS: ToolCard[] = [
     href: "/screening",
   },
   {
-    id: "baby-basics",
-    emoji: "👶",
-    title: "Baby Basics",
-    description: "Simple newborn and infant-care guidance.",
+    id: "guides-faqs",
+    emoji: "📚",
+    title: "Guides & FAQs",
+    description: "Age guides, common problems & parent FAQs.",
     href: "/learn",
   },
 ];
@@ -229,7 +229,7 @@ export const TOOLS_NAV = [
   { href: "/screening", label: "Milestone Check" },
   { href: "/nutrition", label: "Food for Growth" },
   { href: "/dosage", label: "Dose Check" },
-  { href: "/learn", label: "Parenting Hub" },
+  { href: "/learn", label: "Guides & FAQs" },
   { href: "/dashboard", label: "My Child's Health" },
   { href: "/worry", label: "When Should I Worry?" },
 ] as const;
