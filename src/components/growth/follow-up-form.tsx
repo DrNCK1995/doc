@@ -13,6 +13,13 @@ type FollowUpFormProps = {
   onSuccess?: () => void;
 };
 
+function toOptionalNumber(raw: string): number | null {
+  const t = raw.trim();
+  if (!t) return null;
+  const n = Number(t);
+  return Number.isFinite(n) ? n : Number.NaN;
+}
+
 export function FollowUpForm({ patientId, onSuccess }: FollowUpFormProps) {
   const [visitDate, setVisitDate] = React.useState(
     () => new Date().toISOString().slice(0, 10),
@@ -35,11 +42,9 @@ export function FollowUpForm({ patientId, onSuccess }: FollowUpFormProps) {
 
     const payload = {
       visitDate,
-      weightKg: Number(weightKg),
-      heightCm: Number(heightCm),
-      headCircumferenceCm: headCircumferenceCm.trim()
-        ? Number(headCircumferenceCm)
-        : null,
+      weightKg: toOptionalNumber(weightKg),
+      heightCm: toOptionalNumber(heightCm),
+      headCircumferenceCm: toOptionalNumber(headCircumferenceCm),
       notes: notes.trim() || null,
       doctorAdvice: doctorAdvice.trim() || null,
       vaccinationStatus: vaccinationStatus.trim() || null,
@@ -73,7 +78,10 @@ export function FollowUpForm({ patientId, onSuccess }: FollowUpFormProps) {
         },
       );
       if (!res.ok) throw new Error(await parseApiError(res));
-      toast({ title: "Follow-up saved" });
+      toast({
+        title: "Follow-up saved",
+        description: "Growth interpretation updated from the values you entered.",
+      });
       setWeightKg("");
       setHeightCm("");
       setHeadCircumferenceCm("");
@@ -95,6 +103,11 @@ export function FollowUpForm({ patientId, onSuccess }: FollowUpFormProps) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Fields are optional — enter only what you measured. We interpret
+        whatever is filled (weight-for-age, height-for-age, BMI, head
+        circumference).
+      </p>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <Label htmlFor="visitDate" className="mb-1.5 block">
@@ -127,7 +140,7 @@ export function FollowUpForm({ patientId, onSuccess }: FollowUpFormProps) {
         </div>
         <div>
           <Label htmlFor="fu-weight" className="mb-1.5 block">
-            Weight (kg)
+            Weight (kg) — optional
           </Label>
           <Input
             id="fu-weight"
@@ -135,7 +148,6 @@ export function FollowUpForm({ patientId, onSuccess }: FollowUpFormProps) {
             step="0.01"
             value={weightKg}
             onChange={(e) => setWeightKg(e.target.value)}
-            required
           />
           {fieldErrors.weightKg ? (
             <p className="mt-1 text-xs text-destructive">
@@ -145,7 +157,7 @@ export function FollowUpForm({ patientId, onSuccess }: FollowUpFormProps) {
         </div>
         <div>
           <Label htmlFor="fu-height" className="mb-1.5 block">
-            Height (cm)
+            Height (cm) — optional
           </Label>
           <Input
             id="fu-height"
@@ -153,7 +165,6 @@ export function FollowUpForm({ patientId, onSuccess }: FollowUpFormProps) {
             step="0.1"
             value={heightCm}
             onChange={(e) => setHeightCm(e.target.value)}
-            required
           />
           {fieldErrors.heightCm ? (
             <p className="mt-1 text-xs text-destructive">
@@ -163,7 +174,7 @@ export function FollowUpForm({ patientId, onSuccess }: FollowUpFormProps) {
         </div>
         <div>
           <Label htmlFor="fu-hc" className="mb-1.5 block">
-            Head circumference (cm)
+            Head circumference (cm) — optional
           </Label>
           <Input
             id="fu-hc"
@@ -206,7 +217,7 @@ export function FollowUpForm({ patientId, onSuccess }: FollowUpFormProps) {
         </div>
       </div>
       <Button type="submit" disabled={submitting}>
-        {submitting ? "Saving…" : "Save follow-up"}
+        {submitting ? "Saving…" : "Save & interpret"}
       </Button>
     </form>
   );

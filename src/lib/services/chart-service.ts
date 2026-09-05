@@ -191,26 +191,44 @@ export async function buildChartPayload(
     };
   }
 
-  const wfaPoints: ChartPoint[] = record.visits.map((v) =>
-    pointWithZ(v.ageTotalMonths, v.weightKg, v, v.measurements[0]?.weightForAgeZ),
-  );
+  const wfaPoints: ChartPoint[] = record.visits
+    .filter((v) => v.weightKg != null)
+    .map((v) =>
+      pointWithZ(
+        v.ageTotalMonths,
+        v.weightKg,
+        v,
+        v.measurements[0]?.weightForAgeZ,
+      ),
+    );
 
-  const hfaPoints: ChartPoint[] = record.visits.map((v) =>
-    pointWithZ(v.ageTotalMonths, v.heightCm, v, v.measurements[0]?.heightForAgeZ),
-  );
+  const hfaPoints: ChartPoint[] = record.visits
+    .filter((v) => v.heightCm != null)
+    .map((v) =>
+      pointWithZ(
+        v.ageTotalMonths,
+        v.heightCm,
+        v,
+        v.measurements[0]?.heightForAgeZ,
+      ),
+    );
 
-  const bmiPoints: ChartPoint[] = record.visits.map((v) =>
-    pointWithZ(v.ageTotalMonths, v.bmi, v, v.measurements[0]?.bmiForAgeZ),
-  );
+  const bmiPoints: ChartPoint[] = record.visits
+    .filter((v) => v.bmi != null)
+    .map((v) =>
+      pointWithZ(v.ageTotalMonths, v.bmi, v, v.measurements[0]?.bmiForAgeZ),
+    );
 
-  const wfhPoints: ChartPoint[] = record.visits.map((v) =>
-    pointWithZ(
-      v.heightCm,
-      v.weightKg,
-      v,
-      v.measurements[0]?.weightForHeightZ ?? v.measurements[0]?.bmiForAgeZ,
-    ),
-  );
+  const wfhPoints: ChartPoint[] = record.visits
+    .filter((v) => v.heightCm != null && v.weightKg != null)
+    .map((v) =>
+      pointWithZ(
+        v.heightCm!,
+        v.weightKg,
+        v,
+        v.measurements[0]?.weightForHeightZ ?? v.measurements[0]?.bmiForAgeZ,
+      ),
+    );
 
   const hcPoints: ChartPoint[] = record.visits
     .filter((v) => v.headCircumferenceCm != null)
@@ -231,7 +249,10 @@ export async function buildChartPayload(
     if (months <= 0) continue;
     const vel =
       b.measurements[0]?.growthVelocityKgPerMonth ??
-      (b.weightKg - a.weightKg) / months;
+      (b.weightKg != null && a.weightKg != null
+        ? (b.weightKg - a.weightKg) / months
+        : null);
+    if (vel == null || !Number.isFinite(vel)) continue;
     const wazDelta =
       (b.measurements[0]?.weightForAgeZ ?? 0) -
       (a.measurements[0]?.weightForAgeZ ?? 0);

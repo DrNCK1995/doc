@@ -91,10 +91,10 @@ model Visit {
   ageMonths           Int
   ageDays             Int
   ageTotalMonths      Float // precise age in months for charting
-  weightKg            Float
-  heightCm            Float
+  weightKg            Float?
+  heightCm            Float?
   headCircumferenceCm Float?
-  bmi                 Float
+  bmi                 Float?
   notes               String?
   doctorAdvice        String?
   vaccinationStatus   String?

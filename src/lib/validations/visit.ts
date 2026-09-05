@@ -35,8 +35,8 @@ const optionalDate = z
 export const addVisitSchema = z
   .object({
     visitDate: visitDateSchema,
-    weightKg: measurementBounds.weightKg,
-    heightCm: measurementBounds.heightCm,
+    weightKg: measurementBounds.optionalWeightKg,
+    heightCm: measurementBounds.optionalHeightCm,
     headCircumferenceCm: measurementBounds.headCircumferenceCm,
     notes: z.string().trim().max(2000).optional().nullable(),
     doctorAdvice: z.string().trim().max(2000).optional().nullable(),
@@ -44,6 +44,23 @@ export const addVisitSchema = z
     nextVisitDue: optionalDate,
   })
   .superRefine((data, ctx) => {
+    const hasMeasure =
+      data.weightKg != null ||
+      data.heightCm != null ||
+      data.headCircumferenceCm != null ||
+      Boolean(data.notes?.trim()) ||
+      Boolean(data.doctorAdvice?.trim()) ||
+      Boolean(data.vaccinationStatus?.trim()) ||
+      data.nextVisitDue != null;
+
+    if (!hasMeasure) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enter at least one measurement or note for this visit",
+        path: ["weightKg"],
+      });
+    }
+
     const check = assertPlausibleMeasurements({
       weightKg: data.weightKg,
       heightCm: data.heightCm,

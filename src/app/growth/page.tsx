@@ -6,7 +6,7 @@ import {
   UserPlus,
   CalendarClock,
 } from "lucide-react";
-import { SearchPanel } from "@/components/growth/search-panel";
+import { RegisteredChildrenList } from "@/components/growth/registered-children-list";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,8 +27,8 @@ export default function GrowthHomePage() {
           Track your child&apos;s growth
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Register a child, plot WHO / IAP charts, and export reports. Your
-          Growth Tracker — clear curves for parents and clinicians.
+          Open a registered child to view charts, or enter new growth
+          measurements — fill only what you measured.
         </p>
       </div>
 
@@ -49,13 +49,14 @@ export default function GrowthHomePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Quick patient search</CardTitle>
+          <CardTitle className="text-xl">Your registered children</CardTitle>
           <CardDescription>
-            Search by name, mobile, or patient ID and open the dashboard.
+            View growth records or enter new measurements. Search is still
+            available above if you need another ID.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <SearchPanel compact />
+          <RegisteredChildrenList />
         </CardContent>
       </Card>
 
@@ -73,8 +74,8 @@ export default function GrowthHomePage() {
           },
           {
             icon: CalendarClock,
-            title: "Follow-up ready",
-            body: "Track due visits and growth signals, and add clinical follow-up visits.",
+            title: "Partial measures OK",
+            body: "Enter weight, height, or head circumference — we interpret whatever you fill.",
           },
         ].map((item) => (
           <div key={item.title} className="space-y-2 border-t border-border pt-4">

@@ -73,14 +73,6 @@ export async function POST(req: NextRequest, context: RouteContext) {
     const gate = await assertCanAccessPatient(req, patientId);
     if (gate.denied) return gate.denied;
 
-    // Clinical follow-up visits stay staff-only.
-    if (gate.access!.role !== "staff") {
-      return NextResponse.json(
-        { error: "Only clinic staff can add follow-up visits" },
-        { status: 403 },
-      );
-    }
-
     const body = await req.json();
     const parsed = addVisitSchema.parse(body);
     const visit = await addVisit(patientId, parsed, {

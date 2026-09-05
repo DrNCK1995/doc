@@ -29,6 +29,13 @@ export function mapAssessmentToMeasurement(assessment: GrowthAssessment) {
   const flags = assessment.classification.labels.filter(
     (f) => f !== "NORMAL",
   );
+  const hasAnthropometry = Boolean(
+    assessment.weightForAge ||
+      assessment.heightForAge ||
+      assessment.bmiForAge ||
+      assessment.weightForHeight ||
+      assessment.headCircumferenceForAge,
+  );
 
   return {
     referenceSource: assessment.reference.source as ReferenceSource,
@@ -43,10 +50,14 @@ export function mapAssessmentToMeasurement(assessment: GrowthAssessment) {
     weightForHeightPercentile: assessment.weightForHeight?.percentile ?? null,
     hcForAgeZ: assessment.headCircumferenceForAge?.z ?? null,
     hcForAgePercentile: assessment.headCircumferenceForAge?.percentile ?? null,
-    nutritionalStatus: assessment.classification.primaryStatus,
-    clinicalFlags: flags.length
-      ? flags
-      : (["NORMAL"] as string[]),
+    nutritionalStatus: hasAnthropometry
+      ? assessment.classification.primaryStatus
+      : "Partial entry",
+    clinicalFlags: hasAnthropometry
+      ? flags.length
+        ? flags
+        : (["NORMAL"] as string[])
+      : (["PARTIAL"] as string[]),
     growthVelocityKgPerMonth:
       assessment.velocity?.weightKgPerMonth ?? null,
     expectedWeightKg: assessment.expectedWeightKg,

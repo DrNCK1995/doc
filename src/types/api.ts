@@ -48,10 +48,10 @@ export type ApiVisit = {
   ageMonths: number;
   ageDays: number;
   ageTotalMonths: number;
-  weightKg: number;
-  heightCm: number;
+  weightKg: number | null;
+  heightCm: number | null;
   headCircumferenceCm?: number | null;
-  bmi: number;
+  bmi: number | null;
   notes?: string | null;
   doctorAdvice?: string | null;
   vaccinationStatus?: string | null;

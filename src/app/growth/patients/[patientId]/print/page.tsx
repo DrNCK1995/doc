@@ -4,7 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { GrowthCharts } from "@/components/growth/growth-charts";
-import { PatientSummary } from "@/components/growth/patient-summary";
+import {
+  PatientQrMark,
+  PatientSummary,
+} from "@/components/growth/patient-summary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCharts } from "@/hooks/use-charts";
@@ -39,7 +42,7 @@ export default function PatientPrintPage() {
   const m = patient.latestVisit?.measurements?.[0];
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 bg-background print:max-w-none print:bg-white">
+    <div className="relative mx-auto max-w-4xl space-y-6 bg-background px-4 print:max-w-none print:bg-white print:px-6">
       <div className="no-print flex items-center justify-between gap-3">
         <Button asChild variant="outline" size="sm">
           <Link href={`/growth/patients/${encodeURIComponent(patientId)}`}>
@@ -51,7 +54,11 @@ export default function PatientPrintPage() {
         </Button>
       </div>
 
-      <header className="border-b border-border pb-4">
+      <header className="relative border-b border-border pb-4 pr-20">
+        <PatientQrMark
+          patientId={patient.patientId}
+          className="absolute right-0 top-0"
+        />
         <p className="font-display text-2xl font-semibold text-primary">
           Dr. Chaitanya Krishna
         </p>
@@ -63,7 +70,7 @@ export default function PatientPrintPage() {
         </p>
       </header>
 
-      <PatientSummary patient={patient} showQr />
+      <PatientSummary patient={patient} showQr={false} />
 
       <Card>
         <CardHeader>

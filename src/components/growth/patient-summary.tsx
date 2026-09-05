@@ -12,15 +12,21 @@ import type { ApiPatient } from "@/types/api";
 import { inferSeverityColor } from "@/types/api";
 import { StatusBadge } from "@/components/growth/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils/cn";
 
 type PatientSummaryProps = {
   patient: ApiPatient;
   showQr?: boolean;
+  /** Compact QR for print corner placement. */
+  qrSize?: "default" | "compact";
+  className?: string;
 };
 
 export function PatientSummary({
   patient,
   showQr = true,
+  qrSize = "default",
+  className,
 }: PatientSummaryProps) {
   const [qrDataUrl, setQrDataUrl] = React.useState<string | null>(null);
   const age = calculateAge(patient.dateOfBirth);
@@ -30,12 +36,14 @@ export function PatientSummary({
     measurement?.nutritionalStatus,
     measurement?.clinicalFlags,
   );
+  const compact = qrSize === "compact";
+  const px = compact ? 64 : 160;
 
   React.useEffect(() => {
     if (!showQr) return;
     let cancelled = false;
     void QRCode.toDataURL(patient.patientId, {
-      width: 160,
+      width: px,
       margin: 1,
       color: { dark: "#0B4F6C", light: "#FFFFFF" },
     }).then((url) => {
@@ -44,11 +52,16 @@ export function PatientSummary({
     return () => {
       cancelled = true;
     };
-  }, [patient.patientId, showQr]);
+  }, [patient.patientId, showQr, px]);
 
   return (
-    <Card>
-      <CardContent className="grid gap-6 p-6 md:grid-cols-[1fr_auto]">
+    <Card className={className}>
+      <CardContent
+        className={cn(
+          "grid gap-6 p-6",
+          showQr && !compact ? "md:grid-cols-[1fr_auto]" : undefined,
+        )}
+      >
         <div className="space-y-4">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -113,7 +126,7 @@ export function PatientSummary({
           ) : null}
         </div>
 
-        {showQr ? (
+        {showQr && !compact ? (
           <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-secondary/30 p-4">
             {qrDataUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -130,8 +143,63 @@ export function PatientSummary({
             </p>
           </div>
         ) : null}
+
+        {showQr && compact ? (
+          <div className="pointer-events-none absolute right-4 top-4 print:right-6 print:top-6">
+            {qrDataUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={qrDataUrl}
+                alt={`QR code for ${patient.patientId}`}
+                className="h-14 w-14 rounded border border-border bg-white p-0.5"
+              />
+            ) : (
+              <div className="h-14 w-14 animate-pulse rounded bg-muted" />
+            )}
+          </div>
+        ) : null}
       </CardContent>
     </Card>
+  );
+}
+
+/** Standalone compact QR for print header corner. */
+export function PatientQrMark({
+  patientId,
+  className,
+}: {
+  patientId: string;
+  className?: string;
+}) {
+  const [qrDataUrl, setQrDataUrl] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    void QRCode.toDataURL(patientId, {
+      width: 64,
+      margin: 1,
+      color: { dark: "#0B4F6C", light: "#FFFFFF" },
+    }).then((url) => {
+      if (!cancelled) setQrDataUrl(url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [patientId]);
+
+  return (
+    <div className={cn("shrink-0", className)}>
+      {qrDataUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={qrDataUrl}
+          alt={`QR code for ${patientId}`}
+          className="h-14 w-14 rounded border border-border bg-white p-0.5"
+        />
+      ) : (
+        <div className="h-14 w-14 animate-pulse rounded bg-muted" />
+      )}
+    </div>
   );
 }
 

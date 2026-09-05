@@ -60,13 +60,15 @@ export async function addVisit(
   });
 
   const age = calculateAge(patient.dateOfBirth, input.visitDate);
-  const bmi = computeBmi(input.weightKg, input.heightCm);
+  const weightKg = input.weightKg ?? null;
+  const heightCm = input.heightCm ?? null;
+  const bmi = computeBmi(weightKg, heightCm);
 
   const assessment = await runGrowthAssessment({
     sex: patient.sex,
     ageMonths: age.ageMonthsExact,
-    weightKg: input.weightKg,
-    heightCm: input.heightCm,
+    weightKg,
+    heightCm,
     headCm: input.headCircumferenceCm ?? undefined,
     previousVisit: previous
       ? {
@@ -91,8 +93,8 @@ export async function addVisit(
         ageMonths: age.months,
         ageDays: age.days,
         ageTotalMonths: age.ageMonthsExact,
-        weightKg: input.weightKg,
-        heightCm: input.heightCm,
+        weightKg,
+        heightCm,
         headCircumferenceCm: input.headCircumferenceCm ?? null,
         bmi,
         notes: input.notes ?? null,
@@ -264,6 +266,7 @@ export async function getAlerts(
         (b.visitDate.getTime() - a.visitDate.getTime()) /
         (1000 * 60 * 60 * 24);
       if (days <= 0 || days >= 30) continue;
+      if (a.weightKg == null || b.weightKg == null || !(a.weightKg > 0)) continue;
       const lossPct = ((a.weightKg - b.weightKg) / a.weightKg) * 100;
       if (lossPct > 5) {
         alerts.push({

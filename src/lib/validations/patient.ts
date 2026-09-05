@@ -26,8 +26,29 @@ const optionalEmail = z
     z.string().trim().email("Invalid email").optional(),
   );
 
+const optionalPositiveNumber = (opts: {
+  min: number;
+  max: number;
+  label: string;
+}) =>
+  z.preprocess(
+    (v) => {
+      if (v === "" || v === null || v === undefined) return null;
+      if (typeof v === "string" && v.trim() === "") return null;
+      const n = typeof v === "number" ? v : Number(v);
+      return Number.isFinite(n) ? n : v;
+    },
+    z
+      .number()
+      .min(opts.min, `${opts.label} must be at least ${opts.min}`)
+      .max(opts.max, `${opts.label} must be at most ${opts.max}`)
+      .nullable()
+      .optional(),
+  );
+
 /** Shared anthropometric bounds used at registration and visits. */
 export const measurementBounds = {
+  /** Required at registration; optional on follow-up visits. */
   weightKg: z
     .number({ invalid_type_error: "Weight is required" })
     .min(0.5, "Weight must be at least 0.5 kg")
@@ -36,12 +57,22 @@ export const measurementBounds = {
     .number({ invalid_type_error: "Height is required" })
     .min(20, "Height must be at least 20 cm")
     .max(250, "Height must be at most 250 cm"),
-  headCircumferenceCm: z
-    .number()
-    .min(20, "Head circumference must be at least 20 cm")
-    .max(70, "Head circumference must be at most 70 cm")
-    .optional()
-    .nullable(),
+  /** Optional at follow-up — fill only what you measured. */
+  optionalWeightKg: optionalPositiveNumber({
+    min: 0.5,
+    max: 200,
+    label: "Weight",
+  }),
+  optionalHeightCm: optionalPositiveNumber({
+    min: 20,
+    max: 250,
+    label: "Height",
+  }),
+  headCircumferenceCm: optionalPositiveNumber({
+    min: 20,
+    max: 70,
+    label: "Head circumference",
+  }),
   birthWeightKg: z
     .number()
     .min(0.5, "Birth weight must be at least 0.5 kg")
@@ -51,26 +82,31 @@ export const measurementBounds = {
 };
 
 function assertPlausibleMeasurements(data: {
-  weightKg: number;
-  heightCm: number;
+  weightKg?: number | null;
+  heightCm?: number | null;
   headCircumferenceCm?: number | null;
   birthWeightKg?: number | null;
   dateOfBirth?: Date;
 }) {
-  const heightM = data.heightCm / 100;
-  const bmi = data.weightKg / (heightM * heightM);
+  const weight = data.weightKg ?? null;
+  const height = data.heightCm ?? null;
 
-  if (bmi < 5 || bmi > 60) {
-    return {
-      ok: false as const,
-      message:
-        "Weight and height combination yields an impossible BMI (outside 5–60)",
-    };
+  if (weight != null && height != null) {
+    const heightM = height / 100;
+    const bmi = weight / (heightM * heightM);
+    if (bmi < 5 || bmi > 60) {
+      return {
+        ok: false as const,
+        message:
+          "Weight and height combination yields an impossible BMI (outside 5–60)",
+      };
+    }
   }
 
   if (
     data.headCircumferenceCm != null &&
-    data.headCircumferenceCm > data.heightCm
+    height != null &&
+    data.headCircumferenceCm > height
   ) {
     return {
       ok: false as const,
@@ -80,12 +116,12 @@ function assertPlausibleMeasurements(data: {
 
   if (
     data.birthWeightKg != null &&
-    data.weightKg + 0.001 < data.birthWeightKg &&
+    weight != null &&
+    weight + 0.001 < data.birthWeightKg &&
     data.dateOfBirth
   ) {
     const ageDays =
       (Date.now() - data.dateOfBirth.getTime()) / (1000 * 60 * 60 * 24);
-    // Allow small measurement error; flag only for older infants/children
     if (ageDays > 14) {
       return {
         ok: false as const,

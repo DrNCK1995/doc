@@ -20,11 +20,17 @@ import type {
   ZScoreResult,
 } from "./types";
 
-/** BMI = weight(kg) / (height(m))^2 */
-export function computeBmi(weightKg: number, heightCm: number): number {
-  if (!(weightKg > 0) || !(heightCm > 0)) return Number.NaN;
+/** BMI = weight(kg) / (height(m))^2 — null when either measure is missing. */
+export function computeBmi(
+  weightKg: number | null | undefined,
+  heightCm: number | null | undefined,
+): number | null {
+  if (!(weightKg != null && weightKg > 0) || !(heightCm != null && heightCm > 0)) {
+    return null;
+  }
   const m = heightCm / 100;
-  return weightKg / (m * m);
+  const bmi = weightKg / (m * m);
+  return Number.isFinite(bmi) ? bmi : null;
 }
 
 function buildZResult(
@@ -64,7 +70,11 @@ function monthsBetween(
 
 export function computeGrowthVelocity(
   previous: PreviousVisitSnapshot,
-  current: { ageMonths: number; weightKg: number; heightCm: number }
+  current: {
+    ageMonths: number;
+    weightKg: number | null;
+    heightCm: number | null;
+  }
 ): GrowthVelocity {
   const intervalMonths = monthsBetween(previous, current.ageMonths);
   const notes: string[] = [];
@@ -79,26 +89,34 @@ export function computeGrowthVelocity(
   }
 
   const weightKgPerMonth =
-    (current.weightKg - previous.weightKg) / intervalMonths;
+    previous.weightKg != null && current.weightKg != null
+      ? (current.weightKg - previous.weightKg) / intervalMonths
+      : null;
   const heightCmPerMonth =
-    (current.heightCm - previous.heightCm) / intervalMonths;
+    previous.heightCm != null && current.heightCm != null
+      ? (current.heightCm - previous.heightCm) / intervalMonths
+      : null;
 
-  // Rough clinical heuristics (not WHO formal velocity standards)
-  if (weightKgPerMonth < 0) {
-    notes.push("Weight loss since previous visit.");
-  } else if (weightKgPerMonth < 0.05 && current.ageMonths < 24) {
-    notes.push("Low weight velocity for infancy/toddler age.");
+  if (weightKgPerMonth != null) {
+    if (weightKgPerMonth < 0) {
+      notes.push("Weight loss since previous visit.");
+    } else if (weightKgPerMonth < 0.05 && current.ageMonths < 24) {
+      notes.push("Low weight velocity for infancy/toddler age.");
+    }
   }
 
-  if (heightCmPerMonth < 0) {
-    notes.push("Apparent height decrease — verify measurement technique.");
-  } else if (heightCmPerMonth < 0.3 && current.ageMonths < 24) {
-    notes.push("Low linear growth velocity.");
+  if (heightCmPerMonth != null) {
+    if (heightCmPerMonth < 0) {
+      notes.push("Apparent height decrease — verify measurement technique.");
+    } else if (heightCmPerMonth < 0.3 && current.ageMonths < 24) {
+      notes.push("Low linear growth velocity.");
+    }
   }
 
   if (
     previous.weightForAgeZ != null &&
     Number.isFinite(previous.weightForAgeZ) &&
+    weightKgPerMonth != null &&
     weightKgPerMonth < 0
   ) {
     notes.push("Possible growth faltering (weight).");
@@ -116,14 +134,16 @@ export class GrowthCalculator {
   constructor(private readonly provider: ReferenceDataProvider) {}
 
   async assessGrowth(input: AssessGrowthInput): Promise<GrowthAssessment> {
-    const { sex, ageMonths, weightKg, heightCm } = input;
-    const headCm = input.headCm ?? null;
+    const { sex, ageMonths } = input;
+    const weightKg =
+      input.weightKg != null && input.weightKg > 0 ? input.weightKg : null;
+    const heightCm =
+      input.heightCm != null && input.heightCm > 0 ? input.heightCm : null;
+    const headCm =
+      input.headCm != null && input.headCm > 0 ? input.headCm : null;
 
     if (!(ageMonths >= 0) || !Number.isFinite(ageMonths)) {
       throw new Error("ageMonths must be a non-negative finite number");
-    }
-    if (!(weightKg > 0) || !(heightCm > 0)) {
-      throw new Error("weightKg and heightCm must be positive");
     }
 
     const reference = selectReference(ageMonths, input.forceSource);
@@ -140,29 +160,30 @@ export class GrowthCalculator {
       );
 
     const [wfaPts, hfaPts, bmiPts] = await Promise.all([
-      load("WEIGHT_FOR_AGE"),
-      load("HEIGHT_FOR_AGE"),
-      load("BMI_FOR_AGE"),
+      weightKg != null ? load("WEIGHT_FOR_AGE") : Promise.resolve([] as LmsPoint[]),
+      heightCm != null ? load("HEIGHT_FOR_AGE") : Promise.resolve([] as LmsPoint[]),
+      bmi != null ? load("BMI_FOR_AGE") : Promise.resolve([] as LmsPoint[]),
     ]);
 
-    const weightForAge = buildZResult(
-      "WEIGHT_FOR_AGE",
-      weightKg,
-      wfaPts,
-      ageMonths
-    );
-    const heightForAge = buildZResult(
-      "HEIGHT_FOR_AGE",
-      heightCm,
-      hfaPts,
-      ageMonths
-    );
-    const bmiForAge = Number.isFinite(bmi)
-      ? buildZResult("BMI_FOR_AGE", bmi, bmiPts, ageMonths)
-      : null;
+    const weightForAge =
+      weightKg != null
+        ? buildZResult("WEIGHT_FOR_AGE", weightKg, wfaPts, ageMonths)
+        : null;
+    const heightForAge =
+      heightCm != null
+        ? buildZResult("HEIGHT_FOR_AGE", heightCm, hfaPts, ageMonths)
+        : null;
+    const bmiForAge =
+      bmi != null
+        ? buildZResult("BMI_FOR_AGE", bmi, bmiPts, ageMonths)
+        : null;
 
     let weightForHeight: ZScoreResult | null = null;
-    if (supportsWeightForHeight(reference.source, ageMonths)) {
+    if (
+      weightKg != null &&
+      heightCm != null &&
+      supportsWeightForHeight(reference.source, ageMonths)
+    ) {
       const wfhPts = await load("WEIGHT_FOR_HEIGHT");
       weightForHeight = buildZResult(
         "WEIGHT_FOR_HEIGHT",
@@ -173,11 +194,7 @@ export class GrowthCalculator {
     }
 
     let headCircumferenceForAge: ZScoreResult | null = null;
-    if (
-      headCm != null &&
-      headCm > 0 &&
-      supportsHeadCircumference(reference.source, ageMonths)
-    ) {
+    if (headCm != null && supportsHeadCircumference(reference.source, ageMonths)) {
       const hcPts = await load("HEAD_CIRCUMFERENCE_FOR_AGE");
       headCircumferenceForAge = buildZResult(
         "HEAD_CIRCUMFERENCE_FOR_AGE",

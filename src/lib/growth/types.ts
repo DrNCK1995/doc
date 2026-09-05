@@ -121,8 +121,8 @@ export interface GrowthReferenceManifest {
 export interface PreviousVisitSnapshot {
   visitDate: Date | string;
   ageMonths: number;
-  weightKg: number;
-  heightCm: number;
+  weightKg: number | null;
+  heightCm: number | null;
   weightForAgeZ?: number | null;
   heightForAgeZ?: number | null;
 }
@@ -131,8 +131,8 @@ export interface AssessGrowthInput {
   sex: Sex;
   /** Exact or integer age in months (prefer fractional for LMS). */
   ageMonths: number;
-  weightKg: number;
-  heightCm: number;
+  weightKg?: number | null;
+  heightCm?: number | null;
   headCm?: number | null;
   previousVisit?: PreviousVisitSnapshot | null;
   /** Override auto source selection (still never CDC). */
@@ -149,7 +149,7 @@ export interface GrowthVelocity {
 
 export interface GrowthAssessment {
   reference: ReferenceSelection;
-  bmi: number;
+  bmi: number | null;
   weightForAge: ZScoreResult | null;
   heightForAge: ZScoreResult | null;
   bmiForAge: ZScoreResult | null;
