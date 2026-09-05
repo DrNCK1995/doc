@@ -202,7 +202,7 @@ export function ConsultBookingWizard() {
         <span className="font-medium text-foreground">
           ₹{CONSULT_FEE_FOLLOWER_INR}
         </span>{" "}
-        if you follow on Instagram, otherwise{" "}
+        only for my followers, otherwise{" "}
         <span className="font-medium text-foreground">
           ₹{CONSULT_FEE_NON_FOLLOWER_INR}
         </span>

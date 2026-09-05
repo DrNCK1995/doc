@@ -31,8 +31,8 @@ export default function ConsultPage() {
               Consult Doctor
             </h1>
             <p className="mt-3 text-lg text-muted-foreground">
-              Choose a slot, pay the consult fee (₹{CONSULT_FEE_FOLLOWER_INR} for
-              Instagram followers, ₹{CONSULT_FEE_NON_FOLLOWER_INR} otherwise),
+              Choose a slot, pay the consult fee (₹{CONSULT_FEE_FOLLOWER_INR}{" "}
+              only for my followers, otherwise ₹{CONSULT_FEE_NON_FOLLOWER_INR}),
               and receive confirmation for you and the clinic — with reminders
               before the visit.
             </p>
