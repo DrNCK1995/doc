@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     template: "%s | Dr Care for Kids",
   },
   description:
-    "Your child's health companion — trusted pediatric care, Vaccine Buddy, Grow Right, Fever Guide, Dose Check, and parent-friendly tools by Dr. N. Chaitanya Krishna.",
+    "Your child's health companion — trusted pediatric care, Vaccine Buddy, Grow Right, Dose Check, and parent-friendly tools by Dr. N. Chaitanya Krishna.",
   applicationName: "Dr Care for Kids",
   manifest: "/manifest.json",
   keywords: [

@@ -52,13 +52,6 @@ export const NEED_TODAY: ToolCard[] = [
     href: "/growth/check",
   },
   {
-    id: "fever-guide",
-    emoji: "🌡️",
-    title: "Fever Guide",
-    description: "Know what to do.",
-    href: "/worry#fever",
-  },
-  {
     id: "dose-check",
     emoji: "💊",
     title: "Dose Check",
@@ -103,13 +96,6 @@ export const SMART_TOOLS: ToolCard[] = [
     title: "Quick Growth Chart",
     description: "One-time check & printable chart — nothing stored.",
     href: "/growth/check",
-  },
-  {
-    id: "fever-guide",
-    emoji: "🌡️",
-    title: "Fever Guide",
-    description: "Know when fever needs medical attention.",
-    href: "/worry#fever",
   },
   {
     id: "dose-check",

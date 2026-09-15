@@ -102,7 +102,7 @@ const BAND_COPY: Record<
         title: "Fever at this age",
         body: "Any fever in a baby under 3 months needs prompt medical review. Over 3 months, watch activity and fluids.",
         href: "/worry#fever",
-        cta: "Fever Guide",
+        cta: "When Should I Worry?",
       },
       {
         emoji: "🧠",
