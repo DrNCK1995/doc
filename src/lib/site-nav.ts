@@ -45,6 +45,13 @@ export const NEED_TODAY: ToolCard[] = [
     href: "/growth",
   },
   {
+    id: "quick-growth",
+    emoji: "🖨️",
+    title: "Quick Growth Chart",
+    description: "Check once & print — nothing stored.",
+    href: "/growth/check",
+  },
+  {
     id: "fever-guide",
     emoji: "🌡️",
     title: "Fever Guide",
@@ -89,6 +96,13 @@ export const SMART_TOOLS: ToolCard[] = [
     title: "Grow Right",
     description: "Track height, weight & BMI.",
     href: "/growth",
+  },
+  {
+    id: "quick-growth",
+    emoji: "🖨️",
+    title: "Quick Growth Chart",
+    description: "One-time check & printable chart — nothing stored.",
+    href: "/growth/check",
   },
   {
     id: "fever-guide",
@@ -226,6 +240,7 @@ export const TOOLS_NAV = [
   { href: "/tools", label: "All tools" },
   { href: "/vaccination", label: "Vaccine Buddy" },
   { href: "/growth", label: "Grow Right" },
+  { href: "/growth/check", label: "Quick Growth Chart" },
   { href: "/screening", label: "Milestone Check" },
   { href: "/nutrition", label: "Food for Growth" },
   { href: "/dosage", label: "Dose Check" },

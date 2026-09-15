@@ -140,7 +140,14 @@ export function PersonalLoginForm() {
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           My Child and Grow Right need a login. Vaccine Buddy, nutrition,
-          screening, learn, and consult stay open without signing in.
+          screening, learn, consult, and{" "}
+          <Link
+            href="/growth/check"
+            className="font-medium text-primary underline-offset-2 hover:underline"
+          >
+            Quick Growth Chart
+          </Link>{" "}
+          (one-time check &amp; print) stay open without signing in.
         </p>
       </div>
 
@@ -297,6 +304,14 @@ export function PersonalLoginForm() {
       ) : null}
 
       <p className="text-sm text-muted-foreground">
+        Only need a one-time chart?{" "}
+        <Link
+          href="/growth/check"
+          className="font-medium text-primary hover:underline"
+        >
+          Quick check &amp; print
+        </Link>
+        {" · "}
         <Link href="/" className="font-medium text-primary hover:underline">
           Back to home
         </Link>

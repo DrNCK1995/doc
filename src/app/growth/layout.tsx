@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils/cn";
 
 const baseLinks = [
   { href: "/growth", label: "Growth Tracker" },
+  { href: "/growth/check", label: "Quick check" },
   { href: "/growth/register", label: "Register" },
   { href: "/growth/search", label: "Search" },
   { href: "/my-child", label: "My Child" },
@@ -48,6 +49,7 @@ export default function GrowthLayout({
 
   const signedIn = Boolean(auth?.authenticated);
   const isLoginPage = pathname.startsWith("/growth/login");
+  const isQuickCheck = pathname.startsWith("/growth/check");
 
   const links = signedIn
     ? [
@@ -56,7 +58,12 @@ export default function GrowthLayout({
           ? [{ href: "/admin/parents", label: "Admin parents" }]
           : []),
       ]
-    : [...baseLinks, { href: "/growth/login", label: "Sign in" }];
+    : isQuickCheck || isLoginPage
+      ? [
+          { href: "/growth/check", label: "Quick check" },
+          { href: "/growth/login", label: "Sign in to track" },
+        ]
+      : [...baseLinks, { href: "/growth/login", label: "Sign in" }];
 
   return (
     <div className="min-h-screen">

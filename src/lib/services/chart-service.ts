@@ -296,3 +296,122 @@ export async function buildChartPayload(
     charts: { WFA, HFA, BMI, WFH, HC, velocity },
   };
 }
+
+/** Single-point chart set for quick check — no patient record stored. */
+export async function buildSnapshotChartPayload(input: {
+  name?: string;
+  sex: Sex;
+  dateOfBirth: string;
+  visitDate: string;
+  ageMonths: number;
+  weightKg: number | null;
+  heightCm: number | null;
+  headCm: number | null;
+  bmi: number | null;
+  weightForAgeZ?: number | null;
+  heightForAgeZ?: number | null;
+  bmiForAgeZ?: number | null;
+  weightForHeightZ?: number | null;
+  hcForAgeZ?: number | null;
+}): Promise<ChartPayload> {
+  const { source, version } = resolveReference(input.ageMonths);
+  const date = input.visitDate;
+
+  function pt(
+    x: number,
+    y: number | null,
+    z: number | null | undefined,
+  ): ChartPoint {
+    const fromZ = z != null ? toTrafficLight(severityFromZ(z)) : null;
+    return {
+      x,
+      y,
+      visitDate: date,
+      zScore: z ?? null,
+      severityColor: fromZ ?? undefined,
+    };
+  }
+
+  async function seriesFor(
+    key: keyof typeof INDICATOR_MAP,
+    patientPoints: ChartPoint[],
+  ): Promise<ChartSeries> {
+    const meta = INDICATOR_MAP[key]!;
+    const { curves, versionLabel } = await loadPercentileCurves(
+      source,
+      version,
+      meta.indicator,
+      input.sex,
+    );
+    return {
+      indicator: key,
+      unit: meta.unit,
+      xLabel: meta.xLabel,
+      yLabel: meta.yLabel,
+      patientPoints,
+      curves,
+      referenceSource: source,
+      referenceVersion: versionLabel,
+    };
+  }
+
+  const wfaPoints =
+    input.weightKg != null
+      ? [pt(input.ageMonths, input.weightKg, input.weightForAgeZ)]
+      : [];
+  const hfaPoints =
+    input.heightCm != null
+      ? [pt(input.ageMonths, input.heightCm, input.heightForAgeZ)]
+      : [];
+  const bmiPoints =
+    input.bmi != null
+      ? [pt(input.ageMonths, input.bmi, input.bmiForAgeZ)]
+      : [];
+  const wfhPoints =
+    input.weightKg != null && input.heightCm != null
+      ? [
+          pt(
+            input.heightCm,
+            input.weightKg,
+            input.weightForHeightZ ?? input.bmiForAgeZ,
+          ),
+        ]
+      : [];
+  const hcPoints =
+    input.headCm != null
+      ? [pt(input.ageMonths, input.headCm, input.hcForAgeZ)]
+      : [];
+
+  const [WFA, HFA, BMI, WFH, HC] = await Promise.all([
+    seriesFor("WFA", wfaPoints),
+    seriesFor("HFA", hfaPoints),
+    seriesFor("BMI", bmiPoints),
+    seriesFor("WFH", wfhPoints),
+    seriesFor("HC", hcPoints),
+  ]);
+
+  return {
+    patientId: "QUICK-CHECK",
+    name: input.name?.trim() || "Quick check (not saved)",
+    sex: input.sex,
+    dateOfBirth: input.dateOfBirth,
+    charts: {
+      WFA,
+      HFA,
+      BMI,
+      WFH,
+      HC,
+      velocity: {
+        indicator: "velocity",
+        unit: "kg/month",
+        xLabel: "Age (months)",
+        yLabel: "Weight velocity (kg/month)",
+        patientPoints: [],
+        curves: emptyCurves(),
+        referenceSource: source,
+        referenceVersion: version,
+      },
+    },
+  };
+}
+

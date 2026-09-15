@@ -12,10 +12,10 @@ import {
 
 /**
  * Protect personal growth data:
- * - /my-child, /growth (except /growth/login)
+ * - /my-child, /growth (except /growth/login and /growth/check)
  * - /admin/*
  * - /api/patients/*
- * Everything else stays open (tools, learn, consult, home, etc.).
+ * Everything else stays open (tools, learn, consult, home, quick growth check, etc.).
  */
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -23,7 +23,9 @@ export async function middleware(req: NextRequest) {
   const isProtectedPage =
     pathname === "/my-child" ||
     pathname.startsWith("/my-child/") ||
-    (pathname.startsWith("/growth") && !pathname.startsWith("/growth/login")) ||
+    (pathname.startsWith("/growth") &&
+      !pathname.startsWith("/growth/login") &&
+      !pathname.startsWith("/growth/check")) ||
     pathname.startsWith("/admin");
 
   const isProtectedApi =

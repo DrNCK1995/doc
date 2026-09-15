@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { GrowthCharts } from "@/components/growth/growth-charts";
+import { PrintCtaLinks } from "@/components/growth/print-cta-links";
 import {
   PatientQrMark,
   PatientSummary,
@@ -141,6 +142,8 @@ export default function PatientPrintPage() {
           <GrowthCharts payload={charts} />
         </div>
       ) : null}
+
+      <PrintCtaLinks />
     </div>
   );
 }

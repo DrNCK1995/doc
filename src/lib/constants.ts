@@ -4,6 +4,11 @@ export const VACCINATION_FORM_URL =
 export const INSTAGRAM_URL = "https://www.instagram.com/dr.careforkids/";
 export const YOUTUBE_URL = "https://www.youtube.com/@drcareforkids";
 
+/** Canonical site origin for printable / shareable absolute links */
+export const SITE_URL = "https://drcareforkids.com";
+export const GROWTH_LOGIN_URL = `${SITE_URL}/growth/login`;
+export const VACCINE_REMINDER_URL = `${SITE_URL}/vaccination`;
+
 export const CLINIC_NAME = "Imperial Hospitals, Bhimavaram";
 export const DOCTOR_NAME = "Dr. N. Chaitanya Krishna";
 export const DOCTOR_TITLE = "Consultant Paediatrician & Intensivist";

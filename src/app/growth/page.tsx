@@ -1,10 +1,11 @@
 import Link from "next/link";
 import {
+  CalendarClock,
   FileDown,
   LineChart,
+  Printer,
   Search,
   UserPlus,
-  CalendarClock,
 } from "lucide-react";
 import { RegisteredChildrenList } from "@/components/growth/registered-children-list";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,27 @@ export default function GrowthHomePage() {
           measurements — fill only what you measured.
         </p>
       </div>
+
+      <Card className="border-primary/30 bg-primary/5">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Printer className="h-5 w-5 text-primary" aria-hidden />
+            Quick check &amp; print
+          </CardTitle>
+          <CardDescription>
+            No registration. Enter today&apos;s weight/height, see the WHO/IAP
+            chart, and print or save as PDF — nothing is stored.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild size="lg" className="h-12 rounded-full text-base">
+            <Link href="/growth/check">
+              <FileDown className="h-5 w-5" />
+              Check &amp; download chart
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Button asChild size="lg" className="h-14 text-base">
